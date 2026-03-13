@@ -1,0 +1,69 @@
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio
+.vs/
+.vscode/
+*.user
+*.userosscache
+*.sln.docstates
+
+# User-specific files
+*.rsuser
+*.suo
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+.nuget/
+
+# ReSharper
+.idea/
+*.sln.iml
+
+# Local environment files
+appsettings.*.local.json
+.env
+.env.local
+
+# User Secrets
+# User secrets are stored securely in the user profile directory (e.g., ~/.microsoft/usersecrets/)
+# and are NOT committed to version control. They are protected by the OS/user profile location.
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test results
+TestResults/
+*.trx
+test_output.txt
+
+# Coverage reports
+artifacts/
+*.xml
+*.opencover.xml
+coverage.json
+
+# Node modules (if using npm/webpack)
+node_modules/
+.tmp/
+.temp_file_for_push
+
+# TypeScript compilation output
+# Generated from wwwroot/ts/ - compile as part of build process
+wwwroot/js/

@@ -1,0 +1,61 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Version>1.2.0</Version>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+    <UserSecretsId>fire-planning-tool-dev</UserSecretsId>
+
+    <!-- Frontend build: TypeScript (wwwroot/ts -> wwwroot/js). Set to true to skip. -->
+    <SkipFrontendBuild Condition="'$(SkipFrontendBuild)' == ''">false</SkipFrontendBuild>
+
+    <!-- Enable XML documentation generation for IntelliSense support -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="tests/**/*.cs" />
+    <!-- Prevent bin/obj/test directories from being included as web content,
+         which causes recursive path explosion when Microsoft.AspNetCore.Mvc.Testing
+         publishes the web project into the test output directory. -->
+    <Content Remove="bin/**" />
+    <Content Remove="obj/**" />
+    <Content Remove="tests/**" />
+    <Content Remove="artifacts/**" />
+    <Content Remove="tools/**" />
+    <None Remove="bin/**" />
+    <None Remove="obj/**" />
+    <None Remove="tests/**" />
+    <None Remove="artifacts/**" />
+    <None Remove="tools/**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TypeScriptSourceFiles Include="wwwroot/ts/**/*.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Explicitly manage etf-names.json since .NET SDK auto-includes it -->
+    <Content Update="etf-names.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.104.1" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
+    <PackageReference Include="System.IO.Packaging" Version="8.0.1" />
+  </ItemGroup>
+
+  <Target Name="CompileFrontendTypeScript" BeforeTargets="Build;Publish" Inputs="@(TypeScriptSourceFiles);tsconfig.json;package.json" Outputs="wwwroot/js/.tsbuildinfo" Condition="'$(SkipFrontendBuild)' != 'true'">
+    <Message Importance="high" Text="Compiling TypeScript (wwwroot/ts -&gt; wwwroot/js)..." />
+    <Exec WorkingDirectory="$(ProjectDir)" Command="npx tsc -p tsconfig.json --incremental --tsBuildInfoFile wwwroot/js/.tsbuildinfo" />
+
+    <!-- Ensure generated JS/typings are included in build/publish outputs even if wwwroot/js is empty at evaluation time. -->
+    <ItemGroup>
+      <Content Include="wwwroot/js/**/*.js;wwwroot/js/**/*.css;wwwroot/js/**/*.map;wwwroot/js/**/*.d.ts;wwwroot/js/**/*.d.ts.map" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    </ItemGroup>
+  </Target>
+
+</Project>

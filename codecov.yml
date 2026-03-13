@@ -1,0 +1,33 @@
+codecov:
+  require_ci_to_pass: true
+  precision: 2
+  round: down
+  layout: "reach,diff,flags,tree"
+  behavior: default
+
+coverage:
+  precision: 2
+  round: down
+  range:
+    - 70.0
+    - 100.0
+
+comment:
+  layout: "reach, diff, flags, tree"
+  behavior: default
+  require_changes: false
+
+ignore:
+  - "obj/**"
+  - "bin/**"
+  - "*.tests.cs"
+
+flags:
+  backend:
+    carryforward: true
+  frontend:
+    carryforward: true
+
+github:
+  checks:
+    annotations: true

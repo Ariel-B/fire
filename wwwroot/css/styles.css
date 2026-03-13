@@ -1,0 +1,368 @@
+/**
+ * FIRE Planning Tool - Main Stylesheet
+ * 
+ * This file contains all custom styles for the FIRE Planning Tool application.
+ * It works alongside Tailwind CSS classes defined in the HTML.
+ */
+
+/* ============================================================================
+   Base Styles
+   ============================================================================ */
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.currency-symbol-select {
+    text-align-last: center;
+}
+
+.rtl {
+    direction: rtl;
+    text-align: right;
+}
+
+/* ============================================================================
+   Chart Containers
+   ============================================================================ */
+
+.chart-container {
+    position: relative;
+    height: 400px;
+    width: 100%;
+}
+
+.main-chart-wrapper {
+    position: relative;
+    height: 400px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.main-chart {
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.donut-chart {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.donut-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 280px;
+}
+
+.chart-wrapper {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+}
+
+.chart-wrapper-lg {
+    width: 280px;
+    height: 280px;
+}
+
+.main-chart-wrapper-tall {
+    height: 350px;
+}
+
+.sankey-min-height {
+    min-height: 500px;
+}
+
+.loading-control {
+    opacity: 0.7;
+}
+
+/* ============================================================================
+   Form Elements
+   ============================================================================ */
+
+.input-group {
+    margin-bottom: 1rem;
+}
+
+/* Improved focus styles */
+input:focus, select:focus {
+    outline: none;
+}
+
+/* ============================================================================
+   Table Styles
+   ============================================================================ */
+
+.table-container {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Scrollbar styling for portfolio tables - always visible and easy to grab */
+.overflow-x-auto {
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: #9ca3af #f3f4f6; /* thumb track - Firefox */
+}
+
+.overflow-x-auto::-webkit-scrollbar {
+    height: 12px; /* Taller scrollbar for easier grabbing */
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+    background: #f3f4f6;
+    border-radius: 6px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+    background: #9ca3af;
+    border-radius: 6px;
+    border: 2px solid #f3f4f6; /* Creates padding effect */
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+    background: #6b7280; /* Darker on hover */
+}
+
+/* Sortable column headers */
+.sortable-header {
+    transition: background-color 0.2s ease;
+    user-select: none;
+}
+
+.sortable-header:hover {
+    background-color: rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Frozen/sticky columns and expenses table */
+.expenses-table {
+    position: relative;
+    table-layout: auto;
+}
+
+.expenses-table th,
+.expenses-table td {
+    white-space: nowrap;
+}
+
+/* Allow expense type column to wrap */
+.expenses-table td:first-child input {
+    min-width: 150px;
+}
+
+.expenses-table th:first-child,
+.expenses-table td:first-child {
+    position: sticky;
+    right: 0;
+    background: white;
+    z-index: 2;
+    border-left: 2px solid #e5e7eb;
+}
+
+.expenses-table thead th:first-child {
+    background: #f9fafb;
+    z-index: 3;
+}
+
+/* Ensure input fields in expenses table have minimum widths */
+.expenses-table td input[type="number"] {
+    min-width: 80px;
+}
+
+.expenses-table td input[type="text"] {
+    min-width: 120px;
+}
+
+.expenses-table td select {
+    min-width: 60px;
+}
+
+/* General frozen column styles (portfolio table) */
+.frozen-column {
+    position: sticky;
+    right: 0;
+    background: white;
+    z-index: 10;
+    border-left: 1px solid #e5e7eb;
+    box-shadow: -2px 0 4px rgba(0, 0, 0, 0.1);
+}
+
+.frozen-column-header {
+    position: sticky;
+    right: 0;
+    background: #f9fafb;
+    z-index: 11;
+    border-left: 1px solid #e5e7eb;
+    box-shadow: -2px 0 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Total row styling */
+.expenses-total-row {
+    background-color: #f3f4f6;
+    font-weight: 600;
+    border-top: 2px solid #d1d5db;
+}
+
+.expenses-total-row td {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+/* ============================================================================
+   Tab Navigation
+   ============================================================================ */
+
+.tab-button {
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 60px;
+}
+
+.tab-button .tab-title {
+    font-weight: 500;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+}
+
+.tab-button .tab-summary {
+    font-size: 0.7rem;
+    opacity: 0.8;
+    margin-top: 2px;
+    white-space: nowrap;
+    min-height: 1rem;
+}
+
+.tab-button.active {
+    font-weight: 600;
+}
+
+.tab-button.active .tab-title {
+    font-weight: 600;
+}
+
+.tab-button.active .tab-summary {
+    opacity: 1;
+}
+
+.tab-panels {
+    padding: 1rem;
+    background: #f8fafc;
+}
+
+.tab-content {
+    animation: fadeIn 0.2s ease-in;
+}
+
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(-10px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+/* ============================================================================
+   Buttons
+   ============================================================================ */
+
+/* Plan management buttons */
+.plan-btn {
+    position: relative;
+}
+
+/* Currency radio buttons */
+.currency-btn {
+    background-color: white;
+    border: 2px solid #d1d5db;
+    color: #374151;
+    cursor: pointer;
+}
+
+.currency-btn:hover {
+    border-color: #3b82f6;
+    background-color: #eff6ff;
+}
+
+.currency-btn.active {
+    background-color: #3b82f6;
+    border-color: #3b82f6;
+    color: white;
+    font-weight: 600;
+}
+
+/* ============================================================================
+   Responsive Design
+   ============================================================================ */
+
+@media (max-width: 768px) {
+    .tab-button {
+        font-size: 0.7rem;
+        padding: 0.5rem 0.25rem;
+        min-height: 50px;
+    }
+    
+    .tab-button .tab-title {
+        font-size: 0.65rem;
+    }
+    
+    .tab-button .tab-summary {
+        font-size: 0.6rem;
+    }
+    
+    table {
+        font-size: 0.8rem;
+    }
+
+    /* Mobile-specific styles for new components */
+    .summary-bar {
+        padding: 0.75rem;
+    }
+
+    .summary-metrics {
+        font-size: 0.75rem;
+    }
+
+    .asset-card {
+        padding: 0.75rem;
+    }
+
+    .modal-content {
+        max-height: 80vh;
+        margin: 1rem;
+    }
+
+    .method-option {
+        padding: 0.75rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .tab-panels {
+        padding: 1.5rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .tab-panels {
+        padding: 2rem;
+    }
+}

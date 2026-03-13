@@ -1,0 +1,20 @@
+name: Question
+description: Ask for clarification about setup, usage, or project behavior.
+title: "[Question]: "
+labels:
+  - question
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: What do you need help understanding?
+      placeholder: Ask a clear question and include relevant context.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: What have you already tried or read?
+      placeholder: README section, command tried, error seen, or relevant file.

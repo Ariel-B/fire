@@ -1,0 +1,219 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  backend-tests:
+    name: Backend Tests (C# xUnit)
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+        
+    - name: Setup Node.js for TypeScript compilation
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install npm dependencies
+      run: npm ci
+      
+    - name: Compile TypeScript
+      run: npm run build
+        
+    - name: Restore dependencies
+      run: dotnet restore fire.sln
+      
+    - name: Build
+      run: dotnet build fire.sln --no-restore --configuration Release
+      
+    - name: Run tests with coverage
+      run: |
+        mkdir -p "$PWD/artifacts/coverage/backend"
+        dotnet test fire.sln --no-build --configuration Release \
+          --logger "trx;LogFileName=test-results.trx" \
+          /p:CollectCoverage=true \
+          /p:CoverletOutputFormat=opencover \
+          /p:CoverletOutput="$PWD/artifacts/coverage/backend/coverage.opencover.xml"
+      
+    - name: Upload backend coverage artifact
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: backend-coverage
+        path: ./artifacts/coverage/backend/coverage.opencover.xml
+        
+    - name: Publish test results
+      if: always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+      uses: EnricoMi/publish-unit-test-result-action@c950f6fb443cb5af20a377fd0dfaa78838901040 # v2
+      with:
+        files: tests/backend/FirePlanningTool.Tests/**/test-results.trx
+        check_name: Backend Test Results
+
+  frontend-tests:
+    name: Frontend Tests (JavaScript Jest)
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Compile TypeScript
+      run: npm run build
+    - name: List frontend tests
+      run: npx jest --listTests | tee jest-tests.txt
+    - name: Upload Jest test list artifact
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: jest-tests-list
+        path: jest-tests.txt
+    - name: Run RSU invariant tests (fast check)
+      run: npx jest --testPathPatterns=rsu/rsu-invariants-ci.test.js --runInBand --coverage=false
+      
+    - name: Run frontend tests with coverage
+      run: npm run test:coverage -- --runInBand --coverageReporters=json-summary --coverageReporters=text --coverageReporters=lcov --coverageReporters=html
+      
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: frontend-coverage
+        path: artifacts/coverage/frontend
+
+  e2e-tests:
+    name: E2E Tests (Playwright)
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Compile TypeScript
+      run: npm run build
+
+    - name: Restore dependencies
+      run: dotnet restore fire.sln
+
+    - name: Install Playwright browser
+      run: npx playwright install --with-deps chromium
+
+    - name: Run Playwright E2E suite
+      run: npx playwright test --project=chromium --project=mobile-chromium
+
+    - name: Upload Playwright artifacts
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: playwright-report
+        path: |
+          artifacts/playwright-report
+          artifacts/test-results
+
+  coverage-report:
+    name: Coverage Report
+    needs: [backend-tests, frontend-tests]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+      
+    - name: Download backend coverage
+      uses: actions/download-artifact@v4
+      with:
+        name: backend-coverage
+        path: ./coverage-backend
+      continue-on-error: true
+      
+    - name: Download frontend coverage
+      uses: actions/download-artifact@v4
+      with:
+        name: frontend-coverage
+        path: ./coverage-frontend
+      continue-on-error: true
+      
+    - name: Publish coverage summary
+      run: |
+        echo "## Test Coverage Report" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Backend Coverage" >> $GITHUB_STEP_SUMMARY
+        echo "View detailed backend coverage in the build artifacts (backend-coverage)" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Frontend Coverage" >> $GITHUB_STEP_SUMMARY
+        echo "View detailed frontend coverage in the build artifacts (frontend-coverage)" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "> Playwright E2E is enforced in the dedicated Playwright job and reported via Playwright artifacts, but it is not included in the numeric coverage gate because the browser bundle is not instrumented for source coverage collection in that workflow." >> $GITHUB_STEP_SUMMARY
+        
+    - name: Check coverage thresholds
+      run: |
+        npm run check:coverage -- \
+          --backend ./coverage-backend/coverage.opencover.xml \
+          --frontend ./coverage-frontend/coverage-summary.json \
+          --thresholds ./tools/coverage-thresholds.json
+
+  test-summary:
+    name: Test Summary
+    needs: [backend-tests, frontend-tests, e2e-tests]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+    - name: Generate test summary
+      run: |
+        echo "## Test Execution Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "✅ All tests completed" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Test Suites" >> $GITHUB_STEP_SUMMARY
+        echo "- Backend: xUnit with Coverlet coverage" >> $GITHUB_STEP_SUMMARY
+        echo "- Frontend: Jest with coverage reporting" >> $GITHUB_STEP_SUMMARY
+        echo "- E2E: Playwright (desktop Chromium + mobile Chromium viewport)" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Coverage Threshold" >> $GITHUB_STEP_SUMMARY
+        echo "Coverage is enforced per metric using tools/coverage-thresholds.json." >> $GITHUB_STEP_SUMMARY

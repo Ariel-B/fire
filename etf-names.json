@@ -1,0 +1,217 @@
+{
+  "AssetNames": {
+    "_comment": "Static lookup for ETFs and indices. Source: https://en.wikipedia.org/wiki/List_of_American_exchange-traded_funds",
+    
+    "BroadMarket": {
+      "SPY": "SPDR S&P 500 ETF Trust",
+      "VOO": "Vanguard S&P 500 ETF",
+      "IVV": "iShares S&P 500 Index ETF",
+      "VTI": "Vanguard Total Stock Market ETF",
+      "ITOT": "iShares Core S&P Total U.S. Stock Market ETF",
+      "SCHB": "Schwab US Broad Market ETF",
+      "VT": "Vanguard Total World Stock ETF",
+      "VXUS": "Vanguard Total International Stock ETF",
+      "VTHR": "Vanguard Russell 3000 ETF",
+      "IWV": "iShares Russell 3000 Index ETF",
+      "ACWI": "iShares MSCI ACWI Index ETF"
+    },
+    
+    "IndexTracking": {
+      "DIA": "DIAMONDS Trust (Dow Jones Industrial Average)",
+      "QQQ": "Invesco QQQ Trust (Nasdaq-100)",
+      "IWM": "iShares Russell 2000 Index ETF",
+      "RSP": "Guggenheim S&P 500 Equal Weight ETF",
+      "IOO": "iShares S&P Global 100 Index ETF",
+      "OEF": "iShares S&P 100 Index ETF"
+    },
+    
+    "LargeCap": {
+      "IWB": "iShares Russell 1000 Index ETF",
+      "IWF": "iShares Russell 1000 Growth Index ETF",
+      "IWD": "iShares Russell 1000 Value Index ETF",
+      "IVW": "iShares S&P 500 Growth Index ETF",
+      "IVE": "iShares S&P 500 Value Index ETF",
+      "SCHX": "Schwab US Large-Cap ETF",
+      "SCHG": "Schwab US Large-Cap Growth ETF",
+      "SCHV": "Schwab US Large-Cap Value ETF",
+      "SCHD": "Schwab US Dividend Equity ETF",
+      "VOOG": "Vanguard S&P 500 Growth ETF",
+      "VOOV": "Vanguard S&P 500 Value ETF",
+      "VV": "Vanguard Large-Cap ETF",
+      "VUG": "Vanguard Growth ETF",
+      "VTV": "Vanguard Value ETF",
+      "MGC": "Vanguard Mega-Cap 300 ETF",
+      "MGK": "Vanguard Mega-Cap 300 Growth ETF",
+      "MGV": "Vanguard Mega-Cap 300 Value ETF",
+      "VIG": "Vanguard Dividend Appreciation ETF",
+      "VYM": "Vanguard High Dividend Yield ETF",
+      "SDY": "SPDR S&P Dividend ETF"
+    },
+    
+    "MidCap": {
+      "MDY": "MidCap 400 SPDR ETF",
+      "IJH": "iShares S&P MidCap 400 Index ETF",
+      "IJK": "iShares S&P MidCap 400 Growth Index ETF",
+      "IJJ": "iShares S&P MidCap 400 Value Index ETF",
+      "IWR": "iShares Russell Midcap Index ETF",
+      "IWP": "iShares Russell Midcap Growth Index ETF",
+      "IWS": "iShares Russell Midcap Value Index ETF",
+      "SCHM": "Schwab US Mid-Cap ETF",
+      "VO": "Vanguard Mid-Cap ETF",
+      "VOT": "Vanguard Mid-Cap Growth ETF",
+      "VOE": "Vanguard Mid-Cap Value ETF",
+      "VXF": "Vanguard Extended Market ETF",
+      "DVY": "iShares Select Dividend ETF"
+    },
+    
+    "SmallCap": {
+      "IWC": "iShares Micro-Cap ETF",
+      "IWO": "iShares Russell 2000 Growth Index ETF",
+      "IWN": "iShares Russell 2000 Value Index ETF",
+      "IJR": "iShares S&P SmallCap 600 Index ETF",
+      "IJT": "iShares S&P SmallCap 600 Growth Index ETF",
+      "IJS": "iShares S&P SmallCap 600 Value Index ETF",
+      "SCHA": "Schwab US Small-Cap ETF",
+      "VB": "Vanguard Small-Cap ETF",
+      "VBK": "Vanguard Small-Cap Growth ETF",
+      "VBR": "Vanguard Small-Cap Value ETF",
+      "VTWO": "Vanguard Russell 2000 ETF",
+      "VTWG": "Vanguard Russell 2000 Growth ETF",
+      "VTWV": "Vanguard Russell 2000 Value ETF"
+    },
+    
+    "International": {
+      "ACWX": "iShares MSCI ACWI ex US Index ETF",
+      "EFA": "iShares MSCI EAFE Index ETF",
+      "EFG": "iShares MSCI EAFE Growth Index ETF",
+      "EFV": "iShares MSCI EAFE Value Index ETF",
+      "SCZ": "iShares MSCI EAFE Small-Cap ETF",
+      "EEM": "iShares MSCI Emerging Markets Index ETF",
+      "SCHC": "Schwab International Small-Cap Equity ETF",
+      "SCHE": "Schwab Emerging Markets Equity ETF",
+      "SCHF": "Schwab International Equity ETF",
+      "VEA": "Vanguard MSCI EAFE ETF",
+      "VWO": "Vanguard MSCI Emerging Markets ETF",
+      "VEU": "Vanguard FTSE All-World ex-US ETF",
+      "VSS": "Vanguard FTSE All-World ex-US Small-Cap ETF",
+      "EZU": "iShares MSCI EMU Index ETF",
+      "IEV": "iShares S&P Europe 350 Index ETF",
+      "ILF": "iShares S&P Latin America 40 Index ETF",
+      "FEZ": "SPDR EURO STOXX 50 ETF",
+      "VGK": "Vanguard MSCI Europe ETF",
+      "VPL": "Vanguard MSCI Pacific ETF",
+      "EWA": "iShares MSCI Australia Index ETF",
+      "EWC": "iShares MSCI Canada Index ETF",
+      "EWG": "iShares MSCI Germany Index ETF",
+      "EWJ": "iShares MSCI Japan Index ETF",
+      "EWU": "iShares MSCI United Kingdom Index ETF",
+      "EWZ": "iShares MSCI Brazil Index ETF",
+      "FXI": "iShares FTSE/Xinhua China 25 Index ETF"
+    },
+    
+    "Sectors": {
+      "XLY": "Consumer Discretionary Select Sector SPDR ETF",
+      "XLP": "Consumer Staples Select Sector SPDR ETF",
+      "XLE": "Energy Select Sector SPDR ETF",
+      "XLF": "Financial Select Sector SPDR ETF",
+      "XLV": "Health Care Select Sector SPDR ETF",
+      "XLI": "Industrial Select Sector SPDR ETF",
+      "XLB": "Materials Select Sector SPDR ETF",
+      "XLK": "Technology Select Sector SPDR ETF",
+      "XLU": "Utilities Select Sector SPDR ETF",
+      "XLRE": "Real Estate Select Sector SPDR ETF",
+      "VCR": "Vanguard Consumer Discretionary ETF",
+      "VDC": "Vanguard Consumer Staples ETF",
+      "VDE": "Vanguard Energy ETF",
+      "VFH": "Vanguard Financials ETF",
+      "VHT": "Vanguard Health Care ETF",
+      "VIS": "Vanguard Industrials ETF",
+      "VAW": "Vanguard Materials ETF",
+      "VGT": "Vanguard Information Technology ETF",
+      "VPU": "Vanguard Utilities ETF",
+      "VOX": "Vanguard Telecommunication Services ETF",
+      "IYC": "iShares Dow Jones US Consumer Services ETF",
+      "IYK": "iShares Dow Jones US Consumer Goods ETF",
+      "IYE": "iShares Dow Jones US Energy ETF",
+      "IYF": "iShares Dow Jones US Financial ETF",
+      "IYH": "iShares Dow Jones US Health Care ETF",
+      "IYJ": "iShares Dow Jones US Industrial ETF",
+      "IYM": "iShares Dow Jones US Materials ETF",
+      "IYW": "iShares Dow Jones US Technology ETF",
+      "IYZ": "iShares Dow Jones US Telecommunications ETF",
+      "IDU": "iShares Dow Jones US Utilities ETF",
+      "IBB": "iShares Nasdaq Biotechnology ETF",
+      "ITB": "iShares US Home Construction ETF",
+      "KBE": "SPDR S&P Bank ETF",
+      "KRE": "SPDR S&P Regional Banking ETF",
+      "XBI": "SPDR S&P Biotech ETF",
+      "XHB": "SPDR S&P Homebuilders ETF",
+      "OIH": "Market Vectors Oil Services ETF",
+      "GDX": "Market Vectors Gold Miners ETF",
+      "GDXJ": "Market Vectors Junior Gold Miners ETF"
+    },
+    
+    "Bonds": {
+      "AGG": "iShares Core U.S. Aggregate Bond ETF",
+      "BND": "Vanguard Total Bond Market ETF",
+      "TLT": "iShares 20+ Year Treasury Bond ETF",
+      "IEF": "iShares 7-10 Year Treasury ETF",
+      "SHY": "iShares 1-3 Year Treasury Bond ETF",
+      "TIP": "iShares Barclays TIPS Bond ETF",
+      "HYG": "iShares iBoxx $ High Yield Corp Bond ETF",
+      "LQD": "iShares iBoxx $ Invest Grade Corp Bond ETF",
+      "MUB": "iShares National AMT-Free Muni Bond ETF",
+      "EMB": "iShares JPMorgan USD Emerg Markets Bond ETF",
+      "VCIT": "Vanguard Intermediate-Term Corporate Bond ETF",
+      "VCLT": "Vanguard Long-Term Corporate Bond ETF",
+      "VCSH": "Vanguard Short-Term Corporate Bond ETF",
+      "VGIT": "Vanguard Intermediate-Term Government Bond ETF",
+      "VGLT": "Vanguard Long-Term Government Bond ETF",
+      "VGSH": "Vanguard Short-Term Government Bond ETF",
+      "BSV": "Vanguard Short-Term Bond ETF",
+      "BIV": "Vanguard Intermediate-Term Bond ETF",
+      "BLV": "Vanguard Long-Term Bond ETF",
+      "SCHZ": "Schwab US Aggregate Bond ETF",
+      "SCHP": "Schwab US TIPS ETF",
+      "JNK": "SPDR Barclays Capital High Yield Bond ETF"
+    },
+    
+    "Commodities": {
+      "GLD": "SPDR Gold Shares",
+      "IAU": "iShares Gold Trust",
+      "SLV": "iShares Silver Trust",
+      "DBC": "Invesco DB Commodity Index Tracking Fund",
+      "USO": "United States Oil Fund",
+      "UNG": "United States Natural Gas Fund"
+    },
+    
+    "RealEstate": {
+      "VNQ": "Vanguard Real Estate ETF",
+      "IYR": "iShares Dow Jones US Real Estate ETF",
+      "SCHH": "Schwab US REIT ETF",
+      "RWR": "SPDR Dow Jones REIT ETF"
+    },
+    
+    "Cryptocurrency": {
+      "IBIT": "iShares Bitcoin Trust",
+      "ETHA": "iShares Ethereum Trust",
+      "GBTC": "Grayscale Bitcoin Trust",
+      "BITO": "ProShares Bitcoin Strategy ETF"
+    },
+    
+    "Thematic": {
+      "ARKK": "ARK Innovation ETF",
+      "ARKQ": "ARK Industrial Innovation ETF",
+      "ARKW": "ARK Next Generation Internet ETF",
+      "ARKG": "ARK Genomic Revolution ETF",
+      "ARKF": "ARK Fintech Innovation ETF"
+    },
+    
+    "Indices": {
+      "SPX": "S&P 500 Index",
+      "NDX": "Nasdaq-100 Index",
+      "DJI": "Dow Jones Industrial Average",
+      "RUT": "Russell 2000 Index"
+    }
+  }
+}

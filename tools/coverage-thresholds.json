@@ -1,0 +1,13 @@
+{
+  "backend": {
+    "line": 88.5,
+    "branch": 73.5,
+    "method": 95.25
+  },
+  "frontend": {
+    "statements": 65.0,
+    "branches": 55.0,
+    "functions": 65.0,
+    "lines": 65.0
+  }
+}

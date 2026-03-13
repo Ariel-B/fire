@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  fire-planning-tool:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fire-planning-tool
+    ports:
+      - "5162:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      # Set your Finnhub API key here or use .env file
+      - Finnhub__ApiKey=${FINNHUB_API_KEY}
+    volumes:
+      # Optional: Mount logs directory
+      - ./logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    networks:
+      - fire-network
+
+networks:
+  fire-network:
+    driver: bridge

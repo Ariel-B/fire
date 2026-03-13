@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Repeated Expenses</title>
+</head>
+<body>
+    <h1>Test Repeated Expenses Logic</h1>
+    <script>
+        // Simulate the repeated expense logic
+        function testRepeatedExpenseCalculation() {
+            // Test expense: starts in 2025, repeats every 2 years, 3 times total
+            const expense = {
+                id: 1,
+                type: "Test Expense",
+                netAmount: 1000,
+                currency: "$",
+                year: 2025,
+                frequencyYears: 2,
+                repetitionCount: 3
+            };
+
+            console.log("Testing expense:", expense);
+            console.log("Should occur in years:", [2025, 2027, 2029]);
+
+            // Test which years this expense should occur
+            const testYears = [2024, 2025, 2026, 2027, 2028, 2029, 2030];
+            
+            testYears.forEach(year => {
+                const frequencyYears = expense.frequencyYears || 1;
+                const repetitionCount = expense.repetitionCount || 1;
+                const startYear = expense.year;
+                
+                let shouldOccur = false;
+                // Check if this year matches any occurrence of the repeated expense
+                for (let i = 0; i < repetitionCount; i++) {
+                    const occurrenceYear = startYear + (i * frequencyYears);
+                    if (occurrenceYear === year) {
+                        shouldOccur = true;
+                        break;
+                    }
+                }
+                
+                console.log(`Year ${year}: ${shouldOccur ? "EXPENSE OCCURS" : "no expense"}`);
+            });
+        }
+
+        // Run the test
+        testRepeatedExpenseCalculation();
+    </script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FirePlanningTool", "FirePlanningTool.csproj", "{3E273AA5-88EF-8D84-282E-AAB9279ED748}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FirePlanningTool.Tests", "tests/backend/FirePlanningTool.Tests/FirePlanningTool.Tests.csproj", "{C2D3E4F5-G6H7-8901-BC23-DE45FG67HI89}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3E273AA5-88EF-8D84-282E-AAB9279ED748}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E273AA5-88EF-8D84-282E-AAB9279ED748}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E273AA5-88EF-8D84-282E-AAB9279ED748}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E273AA5-88EF-8D84-282E-AAB9279ED748}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2D3E4F5-G6H7-8901-BC23-DE45FG67HI89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2D3E4F5-G6H7-8901-BC23-DE45FG67HI89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2D3E4F5-G6H7-8901-BC23-DE45FG67HI89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2D3E4F5-G6H7-8901-BC23-DE45FG67HI89}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {87AEA575-9409-44B5-A506-3A6A7196EFA0}
+	EndGlobalSection
+EndGlobal

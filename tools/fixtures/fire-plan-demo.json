@@ -1,0 +1,344 @@
+{
+  "birthDate": "1991-01-01",
+  "birthYear": 1991,
+  "earlyRetirementYear": 2041,
+  "fullRetirementAge": 67,
+  "monthlyContribution": {
+    "amount": 10000,
+    "currency": "ILS"
+  },
+  "adjustContributionsForInflation": true,
+  "withdrawalRate": 4,
+  "inflationRate": 3,
+  "capitalGainsTax": 25,
+  "pensionNetMonthly": {
+    "amount": 12000,
+    "currency": "ILS"
+  },
+  "targetMonthlyExpense": {
+    "amount": 18000,
+    "currency": "ILS"
+  },
+  "usdIlsRate": 3.09,
+  "accumulationPortfolio": [
+    {
+      "id": 1773000001001,
+      "symbol": "SPY",
+      "quantity": 420,
+      "currentPrice": {
+        "amount": 672.38,
+        "currency": "USD"
+      },
+      "averageCost": {
+        "amount": 480,
+        "currency": "USD"
+      },
+      "method": "CAGR",
+      "value1": 10,
+      "value2": 0,
+      "marketCapUsd": null,
+      "priceSource": "api",
+      "assetName": "SPDR S&P 500 ETF Trust",
+      "historicalCAGRs": {
+        "1": 20.2,
+        "3": 17.98,
+        "5": 11.15,
+        "10": 12.58,
+        "15": 11.43,
+        "20": 8.57
+      },
+      "cagrSource": "manual",
+      "loadingCAGR": false
+    },
+    {
+      "id": 1773000001002,
+      "symbol": "QQQ",
+      "quantity": 250,
+      "currentPrice": {
+        "amount": 599.75,
+        "currency": "USD"
+      },
+      "averageCost": {
+        "amount": 390,
+        "currency": "USD"
+      },
+      "method": "CAGR",
+      "value1": 14.23,
+      "value2": 0,
+      "marketCapUsd": null,
+      "priceSource": "api",
+      "assetName": "Invesco QQQ Trust (Nasdaq-100)",
+      "historicalCAGRs": {
+        "1": 27.9,
+        "3": 23.17,
+        "5": 13.45,
+        "10": 18.57,
+        "15": 16.93,
+        "20": 14.23
+      },
+      "cagrSource": "20",
+      "loadingCAGR": false
+    }
+  ],
+  "retirementAllocation": [
+    {
+      "id": 2,
+      "assetType": "SP 500",
+      "targetPercentage": 60,
+      "expectedAnnualReturn": 10,
+      "description": "VXUS"
+    },
+    {
+      "id": 3,
+      "assetType": "ת״א 35",
+      "targetPercentage": 30,
+      "expectedAnnualReturn": 8,
+      "description": "BND"
+    },
+    {
+      "id": 4,
+      "assetType": "קרן כספית שקלית",
+      "targetPercentage": 10,
+      "expectedAnnualReturn": 3,
+      "description": "VMFXX"
+    }
+  ],
+  "expenses": [
+    {
+      "id": 1773000002001,
+      "type": "חופשה משפחתית",
+      "netAmount": {
+        "amount": 3000,
+        "currency": "USD"
+      },
+      "year": 2042,
+      "frequencyYears": 1,
+      "repetitionCount": 30
+    },
+    {
+      "id": 1773000002002,
+      "type": "החלפת רכב",
+      "netAmount": {
+        "amount": 100000,
+        "currency": "ILS"
+      },
+      "year": 2044,
+      "frequencyYears": 8,
+      "repetitionCount": 4
+    },
+    {
+      "id": 1773000002003,
+      "type": "שדרוג ושיפוץ בית",
+      "netAmount": {
+        "amount": 35000,
+        "currency": "ILS"
+      },
+      "year": 2046,
+      "frequencyYears": 7,
+      "repetitionCount": 4
+    },
+    {
+      "id": 1773000002004,
+      "type": "טיול אחרי צבא - ילד/ה 1",
+      "netAmount": {
+        "amount": 25000,
+        "currency": "ILS"
+      },
+      "year": 2043,
+      "frequencyYears": 1,
+      "repetitionCount": 1
+    },
+    {
+      "id": 1773000002005,
+      "type": "לימודי אוניברסיטה - ילד/ה 1",
+      "netAmount": {
+        "amount": 30000,
+        "currency": "ILS"
+      },
+      "year": 2044,
+      "frequencyYears": 1,
+      "repetitionCount": 4
+    },
+    {
+      "id": 1773000002006,
+      "type": "טיול אחרי צבא - ילד/ה 2",
+      "netAmount": {
+        "amount": 25000,
+        "currency": "ILS"
+      },
+      "year": 2046,
+      "frequencyYears": 1,
+      "repetitionCount": 1
+    },
+    {
+      "id": 1773000002007,
+      "type": "לימודי אוניברסיטה - ילד/ה 2",
+      "netAmount": {
+        "amount": 30000,
+        "currency": "ILS"
+      },
+      "year": 2047,
+      "frequencyYears": 1,
+      "repetitionCount": 4
+    },
+    {
+      "id": 1773000002008,
+      "type": "עזרה ברכישת דירה - ילד/ה 1",
+      "netAmount": {
+        "amount": 350000,
+        "currency": "ILS"
+      },
+      "year": 2050,
+      "frequencyYears": 1,
+      "repetitionCount": 1
+    },
+    {
+      "id": 1773000002009,
+      "type": "מתנת חתונה - ילד/ה 1",
+      "netAmount": {
+        "amount": 100000,
+        "currency": "ILS"
+      },
+      "year": 2051,
+      "frequencyYears": 1,
+      "repetitionCount": 1
+    },
+    {
+      "id": 1773000002010,
+      "type": "עזרה ברכישת דירה - ילד/ה 2",
+      "netAmount": {
+        "amount": 350000,
+        "currency": "ILS"
+      },
+      "year": 2053,
+      "frequencyYears": 1,
+      "repetitionCount": 1
+    },
+    {
+      "id": 1773000002011,
+      "type": "מתנת חתונה - ילד/ה 2",
+      "netAmount": {
+        "amount": 100000,
+        "currency": "ILS"
+      },
+      "year": 2054,
+      "frequencyYears": 1,
+      "repetitionCount": 1
+    },
+    {
+      "id": 1773000002012,
+      "type": "עזרה בשכר דירה לילדים בתחילת הדרך",
+      "netAmount": {
+        "amount": 60000,
+        "currency": "ILS"
+      },
+      "year": 2048,
+      "frequencyYears": 1,
+      "repetitionCount": 4
+    },
+    {
+      "id": 1773000002013,
+      "type": "חופשה משפחתית גדולה בחו\"ל כל כמה שנים",
+      "netAmount": {
+        "amount": 25000,
+        "currency": "ILS"
+      },
+      "year": 2049,
+      "frequencyYears": 4,
+      "repetitionCount": 5
+    },
+    {
+      "id": 1773000002014,
+      "type": "לידת נכדים / עזרה ראשונית לילדים אחרי לידה",
+      "netAmount": {
+        "amount": 25000,
+        "currency": "ILS"
+      },
+      "year": 2055,
+      "frequencyYears": 2,
+      "repetitionCount": 4
+    },
+    {
+      "id": 1773000002015,
+      "type": "החלפת ריהוט ומוצרי חשמל גדולים",
+      "netAmount": {
+        "amount": 45000,
+        "currency": "ILS"
+      },
+      "year": 2052,
+      "frequencyYears": 7,
+      "repetitionCount": 3
+    },
+    {
+      "id": 1773000002016,
+      "type": "שיפוץ גדול בבית",
+      "netAmount": {
+        "amount": 120000,
+        "currency": "ILS"
+      },
+      "year": 2058,
+      "frequencyYears": 1,
+      "repetitionCount": 1
+    }
+  ],
+  "useRetirementPortfolio": true,
+  "includeRsuInCalculations": true,
+  "rsuConfiguration": {
+    "stockSymbol": "MSFT",
+    "currentPricePerShare": 410,
+    "priceIsFromApi": false,
+    "currency": "$",
+    "expectedAnnualReturn": 14,
+    "returnMethod": "CAGR",
+    "defaultVestingPeriodYears": 4,
+    "liquidationStrategy": "SellAfter2Years",
+    "marginalTaxRate": 35,
+    "subjectTo3PercentSurtax": false,
+    "grants": [
+      {
+        "id": 1773000003001,
+        "grantDate": "2022-01-01",
+        "numberOfShares": 100,
+        "sharesSold": 50,
+        "priceAtGrant": 280,
+        "currency": "$",
+        "vestingPeriodYears": 4,
+        "vestingType": "Standard"
+      },
+      {
+        "id": 1773000003002,
+        "grantDate": "2023-01-01",
+        "numberOfShares": 85,
+        "sharesSold": 20,
+        "priceAtGrant": 300,
+        "currency": "$",
+        "vestingPeriodYears": 4,
+        "vestingType": "Standard"
+      },
+      {
+        "id": 1773000003003,
+        "grantDate": "2024-01-01",
+        "numberOfShares": 70,
+        "sharesSold": 0,
+        "priceAtGrant": 340,
+        "currency": "$",
+        "vestingPeriodYears": 4,
+        "vestingType": "Standard"
+      },
+      {
+        "id": 1773000003004,
+        "grantDate": "2025-01-01",
+        "numberOfShares": 55,
+        "sharesSold": 0,
+        "priceAtGrant": 380,
+        "currency": "$",
+        "vestingPeriodYears": 4,
+        "vestingType": "Standard"
+      }
+    ]
+  },
+  "currency": "₪",
+  "displayCurrency": "₪",
+  "savedAt": "2026-03-08T16:00:00.000Z",
+  "version": "2.0"
+}

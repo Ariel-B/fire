@@ -1,0 +1,53 @@
+{
+  "name": "fire-planning-tool",
+  "version": "1.2.0",
+  "description": "FIRE Planning Tool - Financial Independence Retire Early Calculator",
+  "type": "module",
+  "scripts": {
+    "build": "npm run build:css && tsc",
+    "build:watch": "tsc --watch",
+    "build:css": "tailwindcss -c tailwind.config.cjs -i ./wwwroot/css/tailwind-input.css -o ./wwwroot/css/tailwind.css --minify",
+    "check:coverage": "node tools/check-coverage.mjs",
+    "screenshots": "node tools/regenerate-docs-screenshots.mjs",
+    "test": "jest",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:frontend": "jest wwwroot/tests/**/*.test.js",
+    "test:all": "npm run test:coverage && dotnet test",
+    "dev": "tsc --watch"
+  },
+  "keywords": [
+    "fire",
+    "financial-independence",
+    "retirement",
+    "planning"
+  ],
+  "author": "Ariel Broitman",
+  "license": "Apache-2.0",
+  "overrides": {
+    "test-exclude": "^7.0.1",
+    "minimatch": "^9.0.7"
+  },
+  "dependencies": {
+    "@playwright/test": "^1.58.2",
+    "chart.js": "^4.5.1",
+    "chartjs-plugin-annotation": "^3.1.0",
+    "chartjs-plugin-zoom": "^2.2.0",
+    "d3": "^7.9.0",
+    "d3-sankey": "^0.12.3",
+    "hammerjs": "^2.0.8"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.11.1",
+    "@babel/core": "^7.28.5",
+    "@babel/preset-env": "^7.28.5",
+    "@types/chart.js": "^2.9.41",
+    "jest": "^30.2.0",
+    "jest-junit": "^16.0.0",
+    "playwright": "^1.58.2",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "testEnvironment": "node",
+  "collectCoverage": true,
+  "collectCoverageFrom": [
+    "wwwroot/js/**/*.js",
+    "!wwwroot/js/**/*.test.js",
+    "!wwwroot/js/**/index.js"
+  ],
+  "coverageDirectory": "artifacts/coverage/frontend",
+  "coverageReporters": [
+    "text",
+    "lcov",
+    "json",
+    "json-summary",
+    "html"
+  ],
+  "coverageThreshold": {
+    "global": {
+      "branches": 55,
+      "functions": 65,
+      "lines": 65,
+      "statements": 65
+    }
+  },
+  "testMatch": [
+    "**/wwwroot/tests/**/*.test.js"
+  ],
+  "moduleNameMapper": {
+    "^@/(.*)$": "<rootDir>/wwwroot/js/$1"
+  },
+  "transform": {
+    "^.+\\.js$": "babel-jest"
+  },
+  "transformIgnorePatterns": [
+    "node_modules/(?!.*)"
+  ],
+  "verbose": true
+}

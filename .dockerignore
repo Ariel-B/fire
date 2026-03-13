@@ -1,0 +1,51 @@
+# Ignore build outputs
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+
+# Ignore compiled JavaScript (will be built in container)
+wwwroot/js/
+
+# Ignore node modules (will be installed in container)
+node_modules/
+
+# Ignore tests
+FirePlanningTool.Tests/
+wwwroot/tests/
+test_output.txt
+
+# Ignore IDE and editor files
+.vs/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Ignore git files
+.git/
+.gitignore
+.gitattributes
+
+# Ignore documentation
+docs/
+*.md
+!README.md
+
+# Ignore CI/CD files
+.github/
+
+# Ignore environment files
+.env
+.env.local
+*.log
+
+# Ignore other development files
+Makefile
+setup.sh
+*.http
+codecov.yml
+babel.config.json
+jest.config.json

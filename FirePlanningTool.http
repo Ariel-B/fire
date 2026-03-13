@@ -1,0 +1,6 @@
+@FirePlanningTool_HostAddress = http://localhost:5162
+
+GET {{FirePlanningTool_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

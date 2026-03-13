@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>כלי תכנון פרישה מוקדמת (FIRE)</title>
+    <link rel="stylesheet" href="/css/tailwind.css">
+    <link rel="stylesheet" href="/css/styles.css">
+    <script src="/vendor/chart.js"></script>
+    <script src="/vendor/hammer.min.js"></script>
+    <script src="/vendor/chartjs-plugin-zoom.min.js"></script>
+    <script src="/vendor/chartjs-plugin-annotation.min.js"></script>
+    <script src="/vendor/d3.min.js"></script>
+    <script src="/vendor/d3-sankey.min.js"></script>
+</head>
+<body class="bg-gray-100 rtl">
+    <div class="container mx-auto p-4">
+        <!-- Header with Plan Management -->
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-blue-800 flex-1 text-center">כלי תכנון פרישה מוקדמת (FIRE)</h1>
+            
+            <!-- Plan Management Icons -->
+            <div class="flex gap-3 mr-4 items-center">
+                <div class="relative group">
+                    <button id="savePlanAs" 
+                            aria-label="שמור תוכנית בשם"
+                            title="שמור תוכנית בשם"
+                            class="plan-btn bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-full shadow-lg transition-all duration-200 hover:scale-105">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </button>
+                    <div class="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-3 py-2 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                        שמור בשם...
+                        <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-gray-800"></div>
+                    </div>
+                </div>
+                <div class="relative group">
+                    <button id="savePlan" 
+                            aria-label="שמור תוכנית"
+                            title="שמור תוכנית"
+                            class="plan-btn bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg transition-all duration-200 hover:scale-105">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"></path>
+                            <polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="17,21 17,13 7,13 7,21"></polyline>
+                            <polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="7,3 7,8 15,8"></polyline>
+                        </svg>
+                    </button>
+                    <div class="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-3 py-2 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                        שמור (Ctrl+S)
+                        <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-gray-800"></div>
+                    </div>
+                </div>
+                <div class="relative group">
+                    <button id="loadPlan" 
+                            aria-label="טען תוכנית"
+                            title="טען תוכנית"
+                            class="plan-btn bg-green-600 hover:bg-green-700 text-white p-3 rounded-full shadow-lg transition-all duration-200 hover:scale-105">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-5L12 5H5a2 2 0 00-2 2z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v6m0 0l-3-3m3 3l3-3"></path>
+                        </svg>
+                    </button>
+                    <div class="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-3 py-2 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                        טען תוכנית מקובץ JSON
+                        <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-gray-800"></div>
+                    </div>
+                </div>
+
+                <!-- Export to Excel button -->
+                <div class="relative group">
+                    <button id="exportToExcel" 
+                            aria-label="ייצא ל-Excel"
+                            title="ייצא ל-Excel"
+                            class="plan-btn bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-full shadow-lg transition-all duration-200 hover:scale-105">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </button>
+                    <div class="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-3 py-2 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                        ייצא ל-Excel
+                        <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-gray-800"></div>
+                    </div>
+                </div>
+
+                <!-- Display currency dropdown (single circle button) -->
+                <div class="h-8 w-px bg-gray-300 mx-1" aria-hidden="true"></div>
+                <div class="relative" aria-label="מטבע תצוגה לתוצאות">
+                    <div class="relative group">
+                        <button type="button" id="displayCurrencyMenuButton"
+                                data-testid="display-currency-menu"
+                                class="plan-btn bg-white hover:bg-blue-50 text-gray-700 w-11 h-11 p-0 rounded-full shadow-lg transition-all duration-200 hover:scale-105 flex items-center justify-center"
+                                aria-haspopup="menu" aria-expanded="false" aria-controls="displayCurrencyMenu"
+                                aria-label="מטבע תצוגה לתוצאות">
+                            <span id="displayCurrencyMenuButtonLabel" data-testid="display-currency-label" class="text-sm font-semibold leading-none" dir="ltr">$</span>
+                        </button>
+                        <div class="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-3 py-2 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                            מטבע תצוגה לתוצאות
+                            <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-gray-800"></div>
+                        </div>
+                    </div>
+
+                    <div id="displayCurrencyMenu"
+                         class="hidden absolute top-full left-0 mt-2 w-44 bg-white rounded-lg shadow-lg border border-gray-200 z-50 p-2"
+                         role="menu" aria-labelledby="displayCurrencyMenuButton">
+                        <button type="button" id="currencyUSD"
+                                class="w-full text-right px-3 py-2 rounded-md hover:bg-blue-50 text-sm bg-white text-gray-700 transition-colors"
+                                data-currency="$" role="menuitem" dir="ltr">
+                            $ דולר
+                        </button>
+                        <button type="button" id="currencyILS"
+                                class="w-full text-right px-3 py-2 rounded-md hover:bg-blue-50 text-sm bg-white text-gray-700 transition-colors"
+                                data-currency="₪" role="menuitem">
+                            ₪ שקל
+                        </button>
+                    </div>
+                </div>
+                <input type="file" id="fileInput" accept=".json" class="hidden">
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-6 items-start">
+            <!-- Compact Input Column (Right) - Fixed width -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="space-y-6">
+                    
+                    <!-- Personal Plan (Card 1) -->
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 transition-all hover:shadow-md">
+                        <h3 class="text-lg font-bold mb-4 text-gray-800 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            התוכנית האישית
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="input-group group">
+                                <label for="birthDate" class="block text-sm font-medium text-gray-700 mb-1">תאריך לידה</label>
+                                <div class="flex items-center gap-3">
+                                    <input type="date" id="birthDate" value="1990-01-01" aria-label="תאריך לידה" class="flex-1 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors px-3 py-1">
+                                    <input type="hidden" id="birthYear" value="1990">
+                                </div>
+                                <p class="mt-1 text-xs text-gray-400 transition-opacity">תאריך לידה מלא לחישוב מדויק של תחילת קצבה</p>
+                            </div>
+                            <div class="input-group group">
+                                <label for="earlyRetirementAge" class="block text-sm font-medium text-gray-700 mb-1">גיל פרישה מוקדמת</label>
+                                <div class="flex items-center gap-3">
+                                    <input type="range" id="earlyRetirementAgeRange" min="30" max="80" value="50" aria-label="גיל פרישה מוקדמת - סרגל" class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                                    <input type="number" id="earlyRetirementAge" value="50" min="30" max="80" aria-label="גיל פרישה מוקדמת" class="w-20 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors px-2 py-1 text-center">
+                                </div>
+                                <p id="earlyRetirementAgeHelp" class="mt-1 text-xs text-gray-400 transition-opacity">טווח: 30 - 80</p>
+                            </div>
+                            <div class="input-group group">
+                                <label for="fullRetirementAge" class="block text-sm font-medium text-gray-700 mb-1">גיל פרישה מלאה</label>
+                                <div class="flex items-center gap-3">
+                                    <input type="range" id="fullRetirementAgeRange" min="60" max="80" value="67" aria-label="גיל פרישה מלאה - סרגל" class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                                    <input type="number" id="fullRetirementAge" value="67" min="60" max="80" aria-label="גיל פרישה מלאה" class="w-20 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors px-2 py-1 text-center">
+                                </div>
+                                <p class="mt-1 text-xs text-gray-400 transition-opacity">טווח: 60 - 80</p>
+                            </div>
+                            <div class="input-group group">
+                                <label for="monthlyContribution" class="block text-sm font-medium text-gray-700 mb-1">הפקדה חודשית</label>
+                                <div class="flex gap-3">
+                                    <div class="relative flex-1 group">
+                                        <input type="text" inputmode="numeric" id="monthlyContribution" value="10,000" aria-label="הפקדה חודשית" class="w-full min-w-0 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors px-3 py-2 pl-8">
+                                        <div class="absolute inset-y-0 left-0 flex flex-col border-r border-gray-300 rounded-l-lg overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <button id="monthlyContribution-inc" aria-label="הגדל הפקדה חודשית" class="flex-1 px-2 hover:bg-gray-100 text-gray-500 text-[10px] leading-none flex items-center justify-center active:bg-gray-200 transition-colors" tabindex="-1">▲</button>
+                                            <button id="monthlyContribution-dec" aria-label="הקטן הפקדה חודשית" class="flex-1 px-2 hover:bg-gray-100 text-gray-500 text-[10px] leading-none flex items-center justify-center border-t border-gray-300 active:bg-gray-200 transition-colors" tabindex="-1">▼</button>
+                                        </div>
+                                    </div>
+                                    <select id="monthlyContributionCurrency" aria-label="מטבע הפקדה חודשית" class="currency-symbol-select appearance-none w-20 flex-shrink-0 bg-transparent border-none text-xl font-bold text-blue-600 cursor-pointer focus:ring-0 text-center px-0 transition-transform hover:scale-110">
+                                        <option value="₪">₪</option>
+                                        <option value="$">$</option>
+                                    </select>
+                                </div>
+                                <label for="adjustContributionsForInflation" class="mt-2 flex items-center gap-2 text-sm text-gray-600 relative z-10 cursor-pointer">
+                                    <input type="checkbox" id="adjustContributionsForInflation" aria-label="הצמדת הפקדה חודשית לאינפלציה" class="h-4 w-4 shrink-0 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    להצמיד את ההפקדה החודשית לאינפלציה בכל 1 בינואר
+                                </label>
+                                <p class="mt-1 text-xs text-gray-400 transition-opacity">מינימום: 0</p>
+                            </div>
+                            <div class="input-group group">
+                                <label for="targetMonthlyExpense" class="block text-sm font-medium text-gray-700 mb-1">הוצאה חודשית יעד (נטו)</label>
+                                <div class="flex gap-3">
+                                    <div class="relative flex-1 group">
+                                        <input type="text" inputmode="numeric" id="targetMonthlyExpense" value="20,000" aria-label="הוצאה חודשית יעד" class="w-full min-w-0 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors px-3 py-2 pl-8">
+                                        <div class="absolute inset-y-0 left-0 flex flex-col border-r border-gray-300 rounded-l-lg overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <button id="targetMonthlyExpense-inc" aria-label="הגדל הוצאה חודשית יעד" class="flex-1 px-2 hover:bg-gray-100 text-gray-500 text-[10px] leading-none flex items-center justify-center active:bg-gray-200 transition-colors" tabindex="-1">▲</button>
+                                            <button id="targetMonthlyExpense-dec" aria-label="הקטן הוצאה חודשית יעד" class="flex-1 px-2 hover:bg-gray-100 text-gray-500 text-[10px] leading-none flex items-center justify-center border-t border-gray-300 active:bg-gray-200 transition-colors" tabindex="-1">▼</button>
+                                        </div>
+                                    </div>
+                                    <select id="targetMonthlyExpenseCurrency" aria-label="מטבע הוצאה חודשית יעד" class="currency-symbol-select appearance-none w-20 flex-shrink-0 bg-transparent border-none text-xl font-bold text-blue-600 cursor-pointer focus:ring-0 text-center px-0 transition-transform hover:scale-110">
+                                        <option value="₪" selected>₪</option>
+                                        <option value="$">$</option>
+                                    </select>
+                                </div>
+                                <p class="mt-1 text-xs text-gray-400 transition-opacity">סכום נטו שתרצה לחיות ממנו בפרישה</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Market Assumptions (Card 2) -->
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 mt-6 transition-all hover:shadow-md">
+                        <h3 class="text-lg font-bold mb-4 text-gray-800 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                            </svg>
+                            הנחות שוק
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="input-group group">
+                                <label for="inflationRate" class="block text-sm font-medium text-gray-700 mb-1">אינפלציה שנתית (%)</label>
+                                <div class="flex items-center gap-3">
+                                    <input type="range" id="inflationRateRange" min="0" max="10" step="0.1" value="3.0" aria-label="אינפלציה שנתית - סרגל" class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-green-600">
+                                    <input type="number" id="inflationRate" value="3.0" min="0" max="10" step="0.1" aria-label="אינפלציה שנתית" class="w-20 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors px-2 py-1 text-center">
+                                </div>
+                                <p class="mt-1 text-xs text-gray-400 transition-opacity">טווח: 0% - 10%</p>
+                            </div>
+                            <div class="input-group group">
+                                <label for="withdrawalRate" class="block text-sm font-medium text-gray-700 mb-1">אחוז משיכה שנתי (%)</label>
+                                <div class="flex items-center gap-3">
+                                    <input type="range" id="withdrawalRateRange" min="3.0" max="6.0" step="1.0" value="4.0" aria-label="אחוז משיכה שנתי - סרגל" class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-green-600">
+                                    <input type="number" id="withdrawalRate" value="4.0" min="3.0" max="6.0" step="1.0" aria-label="אחוז משיכה שנתי" class="w-20 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors px-2 py-1 text-center">
+                                </div>
+                                <p class="mt-1 text-xs text-gray-400 transition-opacity">טווח: 3.0% - 6.0%</p>
+                            </div>
+                            <div class="input-group group">
+                                <label for="capitalGainsTax" class="block text-sm font-medium text-gray-700 mb-1">מס רווחי הון (%)</label>
+                                <div class="flex items-center gap-3">
+                                    <input type="range" id="capitalGainsTaxRange" min="0" max="50" step="1" value="25" aria-label="מס רווחי הון - סרגל" class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-green-600">
+                                    <input type="number" id="capitalGainsTax" value="25" min="0" max="50" step="1" aria-label="מס רווחי הון" class="w-20 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors px-2 py-1 text-center">
+                                </div>
+                                <p class="mt-1 text-xs text-gray-400 transition-opacity">טווח: 0% - 50%</p>
+                            </div>
+                            <div class="input-group group">
+                                <label for="usdIlsRate" class="block text-sm font-medium text-gray-700 mb-1">שער חליפין USD/ILS</label>
+                                <div class="flex items-center gap-3">
+                                    <input type="range" id="usdIlsRateRange" min="0" max="10" step="0.01" value="3.6" aria-label="שער חליפין USD/ILS - סרגל" class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-green-600">
+                                    <input type="number" id="usdIlsRate" value="3.6" min="0" max="10" step="0.01" aria-label="שער חליפין USD/ILS" class="w-20 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors px-2 py-1 text-center">
+                                </div>
+                                <p class="mt-1 text-xs text-gray-400 transition-opacity">טווח: 0 - 10</p>
+                            </div>
+                            
+                            <!-- Pension Section -->
+                            <div class="border-t border-gray-200 pt-4 mt-4">
+                                <h4 class="text-sm font-semibold text-gray-600 mb-3">קצבה חודשית</h4>
+                                <div class="input-group group">
+                                    <label for="pensionNetMonthlyAmount" class="block text-sm font-medium text-gray-700 mb-1">סכום קצבה חודשי נטו (קבוע, לא צמוד)</label>
+                                    <div class="flex gap-3">
+                                        <div class="relative flex-1 group">
+                                            <input type="text" inputmode="numeric" id="pensionNetMonthlyAmount" value="0" aria-label="סכום קצבה חודשי נטו" class="w-full min-w-0 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors px-3 py-2 pl-8">
+                                            <div class="absolute inset-y-0 left-0 flex flex-col border-r border-gray-300 rounded-l-lg overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button id="pensionNetMonthlyAmount-inc" aria-label="הגדל קצבה חודשית" class="flex-1 px-2 hover:bg-gray-100 text-gray-500 text-[10px] leading-none flex items-center justify-center active:bg-gray-200 transition-colors" tabindex="-1">▲</button>
+                                                <button id="pensionNetMonthlyAmount-dec" aria-label="הקטן קצבה חודשית" class="flex-1 px-2 hover:bg-gray-100 text-gray-500 text-[10px] leading-none flex items-center justify-center border-t border-gray-300 active:bg-gray-200 transition-colors" tabindex="-1">▼</button>
+                                            </div>
+                                        </div>
+                                        <select id="pensionCurrency" aria-label="מטבע קצבה חודשית" class="currency-symbol-select appearance-none w-20 flex-shrink-0 bg-transparent border-none text-xl font-bold text-blue-600 cursor-pointer focus:ring-0 text-center px-0 transition-transform hover:scale-110">
+                                            <option value="₪">₪</option>
+                                            <option value="$">$</option>
+                                        </select>
+                                    </div>
+                                    <p class="mt-1 text-xs text-gray-400 transition-opacity">קצבה נטו לחודש, מתחילה בגיל פרישה מלאה (לא צמודה לאינפלציה)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Results and Configuration Area (Left) - Flexible width -->
+            <div class="space-y-6 min-w-0">
+                
+                <!-- Tab Navigation -->
+                <div class="bg-white rounded-lg shadow-lg">
+                    <div class="border-b border-gray-200">
+                        <nav class="-mb-px flex px-2">
+                            <button id="tab-accumulation" class="tab-button active flex-1 border-b-2 border-blue-500 text-blue-600 py-3 px-1 text-sm font-medium">
+                                <div class="tab-title flex items-center justify-center gap-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 17l6-6 4 4 8-8"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 7h7v7"></path>
+                                    </svg>
+                                    <span>תיק צבירה</span>
+                                </div>
+                                <div id="accumulation-tab-total" class="tab-summary"></div>
+                            </button>
+                            <button id="tab-rsu" class="tab-button flex-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-3 px-1 text-sm font-medium">
+                                <div class="tab-title flex items-center justify-center gap-1">
+                                    <label class="inline-flex items-center justify-center cursor-pointer" data-stop-tab-toggle="true">
+                                        <input type="checkbox" id="includeRsuInCalculations" aria-label="כלול RSU בחישובים" class="mr-1 h-3 w-3 rounded border-gray-300 text-orange-600 focus:ring-orange-500">
+                                    </label>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 6V5a3 3 0 013-3 3 3 0 013 3v1"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 6h10a2 2 0 012 2v11a2 2 0 01-2 2H7a2 2 0 01-2-2V8a2 2 0 012-2z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 12h4"></path>
+                                    </svg>
+                                    <span>RSU</span>
+                                </div>
+                                <div id="rsu-tab-info" class="tab-summary"></div>
+                            </button>
+                            <button id="tab-expenses" class="tab-button flex-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-3 px-1 text-sm font-medium">
+                                <div class="tab-title flex items-center justify-center gap-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 3h10a2 2 0 012 2v16l-2-1-2 1-2-1-2 1-2-1-2 1V5a2 2 0 012-2z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 11h6"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 15h4"></path>
+                                    </svg>
+                                    <span>הוצאות</span>
+                                </div>
+                                <div id="expenses-tab-info" class="tab-summary"></div>
+                            </button>
+                            <button id="tab-retirement" class="tab-button flex-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-3 px-1 text-sm font-medium">
+                                <div class="tab-title flex items-center justify-center gap-1">
+                                    <label class="inline-flex items-center justify-center cursor-pointer" data-stop-tab-toggle="true">
+                                        <input type="checkbox" id="useRetirementPortfolio" aria-label="הפעל תיק פרישה נפרד" class="mr-1 h-3 w-3 rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                                    </label>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v2"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19v2"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.22 6.22l1.42 1.42"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.36 18.36l1.42 1.42"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12h2"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 12h2"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6.22 19.78l1.42-1.42"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.36 5.64l1.42-1.42"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 7a5 5 0 100 10 5 5 0 000-10z"></path>
+                                    </svg>
+                                    <span>תיק פרישה</span>
+                                </div>
+                                <div id="retirement-tab-info" class="tab-summary"></div>
+                            </button>
+                            <button id="tab-results" class="tab-button flex-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-3 px-1 text-sm font-medium">
+                                <div class="tab-title flex items-center justify-center gap-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 22a10 10 0 110-20 10 10 0 010 20z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"></path>
+                                    </svg>
+                                    <span>תוצאות</span>
+                                </div>
+                                <div id="results-tab-info" class="tab-summary"></div>
+                            </button>
+                            <button id="tab-money-flow" class="tab-button flex-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-3 px-1 text-sm font-medium">
+                                <div class="tab-title flex items-center justify-center gap-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h11l-2-2"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 7l-2 2"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17H6l2 2"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 17l2-2"></path>
+                                    </svg>
+                                    <span>תזרים כספי</span>
+                                </div>
+                                <div id="money-flow-tab-info" class="tab-summary"></div>
+                            </button>
+                        </nav>
+                    </div>
+                    
+                    <!-- Tab Content -->
+                    <div class="tab-panels">
+                        <!-- Accumulation Tab (Default) -->
+                        <div id="content-accumulation" class="tab-content">
+                            <div class="w-full">
+                                <!-- Portfolio Overview with Chart and Summary -->
+                                <div class="bg-white rounded-lg shadow mb-6 p-6" id="accumulation-overview-container">
+                                    <h4 class="text-lg font-semibold mb-4 text-center text-green-800">
+                                        <svg class="inline-block w-5 h-5 align-text-bottom ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 19V5"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 19h16"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 17V11"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 17V7"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 17V13"></path>
+                                        </svg>
+                                        סקירת תיק הצבירה
+                                    </h4>
+                                    
+                                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                                        <!-- Chart Section -->
+                                        <div class="lg:col-span-2 order-2 lg:order-1">
+                                            <div id="accumulation-charts-section">
+                                                <div class="grid grid-cols-2 gap-4">
+                                                    <div class="donut-container">
+                                                        <h4 class="text-sm font-medium mb-2 text-center">תיק בתחילת צבירה</h4>
+                                                        <div class="chart-wrapper">
+                                                            <canvas id="accumulationStartChart" class="donut-chart"></canvas>
+                                                        </div>
+                                                        <div id="accumulationStartValue" class="text-lg font-bold mt-2 text-blue-600 text-center">₪0</div>
+                                                        <div id="accumulationStartUnrealizedGain" class="text-xs text-center"></div>
+                                                    </div>
+                                                    <div class="donut-container">
+                                                        <h4 class="text-sm font-medium mb-2 text-center">תיק לפני הפרישה</h4>
+                                                        <div class="chart-wrapper">
+                                                            <canvas id="accumulationEndChart" class="donut-chart"></canvas>
+                                                        </div>
+                                                        <div id="accumulationEndValue" class="text-lg font-bold mt-2 text-green-600 text-center">₪0</div>
+                                                        <div id="accumulationEndUnrealizedGain" class="text-xs text-center"></div>
+                                                        <div id="accumulationEndTaxToPay" class="text-xs text-center text-red-600 hidden"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Summary Section -->
+                                        <div class="lg:col-span-1 order-1 lg:order-2">
+                                            <div class="bg-green-50 p-6 rounded-lg h-fit">
+                                                <h5 class="text-md font-semibold mb-4 text-green-800">
+                                                    <svg class="inline-block w-5 h-5 align-text-bottom ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5h7a2 2 0 012 2v12a2 2 0 01-2 2H8a2 2 0 01-2-2V8"></path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 3h7a2 2 0 012 2v2"></path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 11h6"></path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 15h6"></path>
+                                                    </svg>
+                                                    סיכום התיק
+                                                </h5>
+                                                <div class="space-y-3">
+                                                    <div class="flex justify-between items-center border-b border-green-200 pb-2">
+                                                        <span class="text-sm text-gray-600">מספר נכסים:</span>
+                                                        <span id="accumulation-count" class="text-sm font-medium">0</span>
+                                                    </div>
+                                                    <div class="flex justify-between items-center border-b border-green-200 pb-2">
+                                                        <span class="text-sm text-gray-600">שווי כולל:</span>
+                                                        <span id="accumulation-market-value" class="text-sm font-bold text-green-700">₪0</span>
+                                                    </div>
+                                                    <div class="flex justify-between items-center border-b border-green-200 pb-2">
+                                                        <span class="text-sm text-gray-600">בסיס עלות:</span>
+                                                        <span id="accumulation-cost-basis" class="text-sm font-medium text-gray-700">₪0</span>
+                                                    </div>
+                                                    <div class="flex justify-between items-center pt-1">
+                                                        <span class="text-sm text-gray-600">רווח/הפסד:</span>
+                                                        <span id="accumulation-gain-loss" class="text-sm font-bold">₪0</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Specific Assets Section -->
+                                <div class="overflow-x-auto bg-white rounded-lg shadow">
+                                    <table class="w-full min-w-[1600px]">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th class="frozen-column-header w-40 px-3 py-3 text-right text-sm font-medium text-gray-900">נכס</th>
+                                                <th class="w-24 px-2 py-3 text-right text-sm font-medium text-gray-900">כמות</th>
+                                                <th class="w-24 px-3 py-3 text-right text-sm font-medium text-gray-900">מטבע</th>
+                                                <th class="w-28 px-2 py-3 text-right text-sm font-medium text-gray-900">מחיר נוכחי</th>
+                                                <th class="w-32 px-2 py-3 text-right text-sm font-medium text-gray-900">מחיר עלות ממוצע</th>
+                                                <th class="w-28 px-2 py-3 text-right text-sm font-medium text-gray-900 cursor-pointer sortable-header" data-sort-target="portfolio" data-sort-column="costBasis">בסיס עלות ↕</th>
+                                                <th class="w-28 px-2 py-3 text-right text-sm font-medium text-gray-900 cursor-pointer sortable-header" data-sort-target="portfolio" data-sort-column="marketValue">שווי שוק ↕</th>
+                                                <th class="w-40 px-2 py-3 text-right text-sm font-medium text-gray-900">שווי שוק חברה (נוכחי)</th>
+                                                <th class="w-40 px-2 py-3 text-right text-sm font-medium text-gray-900">שווי חברה בפרישה</th>
+                                                <th class="w-32 px-2 py-3 text-right text-sm font-medium text-gray-900 cursor-pointer sortable-header" data-sort-target="portfolio" data-sort-column="gainLoss">רווח/הפסד ↕</th>
+                                                <th class="w-24 px-2 py-3 text-right text-sm font-medium text-gray-900 cursor-pointer sortable-header" data-sort-target="portfolio" data-sort-column="exposure">חשיפה (%) ↕</th>
+                                                <th class="w-36 px-2 py-3 text-right text-sm font-medium text-gray-900">פי כמה הנכס בפרישה</th>
+                                                <th class="w-32 px-3 py-3 text-right text-sm font-medium text-gray-900">שיטת חישוב</th>
+                                                <th class="w-36 px-3 py-3 text-right text-sm font-medium text-gray-900">פרמטרים</th>
+                                                <th class="w-20 px-2 py-3 text-center text-sm font-medium text-gray-900">פעולות</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="accumulationTable">
+                                            <!-- Dynamic rows will be added here -->
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td colspan="15" class="px-3 py-2 text-xs text-gray-500 bg-gray-50">
+                                                    בסיס עלות = כמות × מחיר עלות ממוצע | שווי שוק = כמות × מחיר נוכחי | שווי שוק חברה מתעדכן אוטומטית ממידע חיצוני | שווי חברה בפרישה מחושב לפי תשואת הנכס עד שנת הפרישה | פי כמה הנכס בפרישה = מכפלת השווי הצפויה לפי שיטת החישוב והזמן שנותר | רווח/הפסד = שווי שוק - בסיס עלות | חשיפה = % מסך התיק | לחץ על כותרות העמודות למיון
+                                                </td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                                <button id="addAccumulationRow" type="button" class="mt-4 mb-8 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors">
+                                    <span class="inline-flex items-center gap-2">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v14"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14"></path>
+                                        </svg>
+                                        <span>הוסף נכס חדש</span>
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- RSU Tab -->
+                        <div id="content-rsu" class="tab-content hidden">
+                            <div class="w-full">
+                                <!-- RSU Summary + Donut (centered layout) -->
+                                <div class="mb-6">
+                                    <div class="bg-white rounded-lg shadow p-6">
+                                        <div class="flex flex-col md:flex-row items-center justify-center gap-6">
+                                            <!-- Left column: two stacked cards -->
+                                            <div class="flex flex-col gap-4 w-full md:w-1/4">
+                                                <div class="bg-green-50 p-4 rounded-lg shadow text-center">
+                                                    <h4 class="text-sm font-medium text-gray-600 mb-2">שווי נוכחי</h4>
+                                                    <div id="rsuCurrentValue" class="text-xl font-bold text-green-600">$0</div>
+                                                </div>
+                                                <div class="bg-blue-50 p-4 rounded-lg shadow text-center">
+                                                    <h4 class="text-sm font-medium text-gray-600 mb-2">צפי תמורה נטו</h4>
+                                                    <div id="rsuProjectedNet" class="text-xl font-bold text-blue-600">$0</div>
+                                                    <div id="rsuProjectedTax" class="text-xs text-red-500 mt-1">מס: $0</div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Center: donut chart -->
+                                            <div class="w-full md:w-1/2 flex justify-center">
+                                                <div class="chart-wrapper chart-wrapper-lg">
+                                                    <canvas id="rsuNestedDonutChart"></canvas>
+                                                </div>
+                                            </div>
+
+                                            <!-- Right column: two stacked cards -->
+                                            <div class="flex flex-col gap-4 w-full md:w-1/4">
+                                                <div class="bg-purple-50 p-4 rounded-lg shadow text-center">
+                                                    <h4 class="text-sm font-medium text-gray-600 mb-2">מענקים פעילים</h4>
+                                                    <div id="rsuActiveGrants" class="text-xl font-bold text-purple-600">0</div>
+                                                </div>
+                                                <div class="bg-indigo-50 p-4 rounded-lg shadow text-center">
+                                                    <h4 class="text-sm font-medium text-gray-600 mb-2">הבשלה מלאה</h4>
+                                                    <div id="rsuFullyVestedDate" class="text-xl font-bold text-indigo-600">-</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- RSU Timeline Charts - Side by Side -->
+                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                                    <!-- RSU Value Chart -->
+                                    <div class="bg-white rounded-lg shadow p-6 group">
+                                        <div class="flex justify-between items-center mb-4">
+                                            <h3 class="text-lg font-semibold text-center flex-1">
+                                                <svg class="inline-block w-5 h-5 align-text-bottom ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v18"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7H9a3 3 0 000 6h6a3 3 0 010 6H8"></path>
+                                                </svg>
+                                                שווי RSU
+                                            </h3>
+                                            <div class="relative opacity-0 group-hover:opacity-100 transition-all">
+                                                <button id="copyRsuTimelineChartBtn" class="peer plan-btn bg-white hover:bg-blue-50 text-gray-700 p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-105">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                                    </svg>
+                                                </button>
+                                                <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded whitespace-nowrap opacity-0 peer-hover:opacity-100 transition-opacity pointer-events-none">העתק נתונים ללוח</span>
+                                            </div>
+                                        </div>
+                                        <div class="main-chart-wrapper main-chart-wrapper-tall">
+                                            <canvas id="rsuTimelineChart" class="main-chart"></canvas>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- RSU Shares Chart -->
+                                    <div class="bg-white rounded-lg shadow p-6 group">
+                                        <div class="flex justify-between items-center mb-4">
+                                            <h3 class="text-lg font-semibold text-center flex-1">
+                                                <svg class="inline-block w-5 h-5 align-text-bottom ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 19V5"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 19h16"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 17V11"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 17V7"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 17V13"></path>
+                                                </svg>
+                                                כמות מניות
+                                            </h3>
+                                            <div class="relative opacity-0 group-hover:opacity-100 transition-all">
+                                                <button id="copyRsuSharesChartBtn" class="peer plan-btn bg-white hover:bg-blue-50 text-gray-700 p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-105">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                                    </svg>
+                                                </button>
+                                                <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded whitespace-nowrap opacity-0 peer-hover:opacity-100 transition-opacity pointer-events-none">העתק נתונים ללוח</span>
+                                            </div>
+                                        </div>
+                                        <div class="main-chart-wrapper main-chart-wrapper-tall">
+                                            <canvas id="rsuSharesChart" class="main-chart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- removed redundant donut block (moved above into summary area) -->
+                                
+                                <!-- RSU Configuration Section -->
+                                <div class="bg-orange-50 rounded-lg shadow p-6 mb-6">
+                                    <h3 class="text-lg font-semibold mb-4 text-orange-800">
+                                        <svg class="inline-block w-5 h-5 align-text-bottom ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 6V5a3 3 0 013-3 3 3 0 013 3v1"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 6h10a2 2 0 012 2v11a2 2 0 01-2 2H7a2 2 0 01-2-2V8a2 2 0 012-2z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 12h4"></path>
+                                        </svg>
+                                        הגדרות RSU
+                                    </h3>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        <!-- Stock Symbol -->
+                                        <div class="input-group">
+                                            <label class="block text-sm font-medium mb-1">סימול מניה</label>
+                                            <input type="text" id="rsuStockSymbol" placeholder="GOOGL" class="w-full border rounded px-3 py-2 uppercase">
+                                            <p class="text-xs text-gray-500 mt-1">המחיר יתעדכן אוטומטית</p>
+                                        </div>
+                                        
+                                        <!-- Current Price -->
+                                        <div class="input-group">
+                                            <label class="block text-sm font-medium mb-1">מחיר נוכחי</label>
+                                            <div class="flex gap-2">
+                                                <input type="number" id="rsuCurrentPrice" step="0.01" class="flex-1 border rounded px-3 py-2">
+                                                <select id="rsuCurrency" class="w-16 border rounded px-1 py-2 text-xs">
+                                                    <option value="$" selected>$</option>
+                                                    <option value="₪">₪</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Expected Return -->
+                                        <div class="input-group">
+                                            <label class="block text-sm font-medium mb-1">תשואה שנתית צפויה (%)</label>
+                                            <div class="flex gap-2">
+                                                <input type="number" id="rsuExpectedReturn" value="10" step="0.1" class="flex-1 border rounded px-3 py-2">
+                                                <select id="rsuReturnMethod" class="w-20 border rounded px-1 py-2 text-xs">
+                                                    <option value="CAGR" selected>CAGR</option>
+                                                    <option value="Fixed">קבוע</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Marginal Tax Rate -->
+                                        <div class="input-group">
+                                            <label class="block text-sm font-medium mb-1">שיעור מס שולי (%)</label>
+                                            <input type="number" id="rsuMarginalTaxRate" value="47" step="1" class="w-full border rounded px-3 py-2">
+                                            <p class="text-xs text-gray-500 mt-1">מס הכנסה על שווי המניות בהענקה</p>
+                                        </div>
+                                        
+                                        <!-- 3% Surtax -->
+                                        <div class="input-group">
+                                            <label class="flex items-center gap-2">
+                                                <input type="checkbox" id="rsuSurtax" checked class="h-4 w-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500">
+                                                <span class="text-sm font-medium">חייב במס יסף 3%</span>
+                                            </label>
+                                            <p class="text-xs text-gray-500 mt-1">על הכנסה מעל ₪721,560 לשנה</p>
+                                        </div>
+                                        
+                                        <!-- Liquidation Strategy -->
+                                        <div class="input-group">
+                                            <label class="block text-sm font-medium mb-1">אסטרטגיית מכירה</label>
+                                            <select id="rsuLiquidationStrategy" class="w-full border rounded px-3 py-2">
+                                                <option value="SellAfter2Years" selected>מכור לאחר 2 שנים (סעיף 102 מלא)</option>
+                                                <option value="SellAtRetirement">מכור בעת פרישה (סעיף 102 חלקי)</option>
+                                            </select>
+                                            <p class="text-xs text-gray-500 mt-1">בחר מתי למכור מניות - לאחר 2 שנים או בעת פרישה</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- RSU Grants Table -->
+                                <div class="bg-white rounded-lg shadow p-6 mb-6">
+                                    <div id="rsu-grants-container">
+                                        <!-- RSU table will be rendered here by rsu-table.ts -->
+                                        <div class="text-center py-8 text-gray-500">
+                                            <p>טוען טבלת מענקים...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Expenses Tab -->
+                        <div id="content-expenses" class="tab-content hidden">
+                            <div class="w-full">
+                                <!-- Expenses Chart -->
+                                <div id="expenses-chart-container" class="bg-white rounded-lg shadow p-6 mb-6 group">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <h3 class="text-lg font-semibold text-center flex-1">הוצאות מתוכננות</h3>
+                                        <div class="relative opacity-0 group-hover:opacity-100 transition-all">
+                                            <button id="copyExpensesChartBtn" class="peer plan-btn bg-white hover:bg-blue-50 text-gray-700 p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-105">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                                </svg>
+                                            </button>
+                                            <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded whitespace-nowrap opacity-0 peer-hover:opacity-100 transition-opacity pointer-events-none">העתק נתונים ללוח</span>
+                                        </div>
+                                    </div>
+                                    <div class="main-chart-wrapper">
+                                        <canvas id="expensesChart" class="main-chart"></canvas>
+                                    </div>
+                                </div>
+                                
+                                <!-- Wide expenses table -->
+                                <div class="overflow-x-auto bg-white rounded-lg shadow">
+                                    <table class="w-full expenses-table">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th class="min-w-48 px-4 py-3 text-right text-sm font-medium text-gray-900 cursor-pointer sortable-header whitespace-nowrap" data-sort-target="expenses" data-sort-column="type">סוג הוצאה ↕</th>
+                                                <th class="min-w-28 px-3 py-3 text-right text-sm font-medium text-gray-900 cursor-pointer sortable-header whitespace-nowrap" data-sort-target="expenses" data-sort-column="netAmount">סכום (נטו) ↕</th>
+                                                <th class="min-w-20 px-4 py-3 text-right text-sm font-medium text-gray-900 whitespace-nowrap">מטבע</th>
+                                                <th class="min-w-28 px-4 py-3 text-right text-sm font-medium text-gray-900 cursor-pointer sortable-header whitespace-nowrap" data-sort-target="expenses" data-sort-column="year">שנה ראשונה ↕</th>
+                                                <th class="min-w-24 px-3 py-3 text-right text-sm font-medium text-gray-900 whitespace-nowrap">תדירות (שנים)</th>
+                                                <th class="min-w-24 px-3 py-3 text-right text-sm font-medium text-gray-900 cursor-pointer sortable-header whitespace-nowrap" data-sort-target="expenses" data-sort-column="repetitionCount">מספר חזרות ↕</th>
+                                                <th class="min-w-32 px-4 py-3 text-right text-sm font-medium text-gray-900 whitespace-nowrap">סכום מתואם ראשון</th>
+                                                <th class="min-w-32 px-4 py-3 text-right text-sm font-medium text-gray-900 whitespace-nowrap">סכום מתואם אחרון</th>
+                                                <th class="min-w-36 px-4 py-3 text-right text-sm font-medium text-gray-900 bg-blue-50 cursor-pointer sortable-header whitespace-nowrap" data-sort-target="expenses" data-sort-column="grandTotal">סה"כ כולל חזרות ↕</th>
+                                                <th class="min-w-20 px-4 py-3 text-center text-sm font-medium text-gray-900 whitespace-nowrap">פעולות</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="expensesTable">
+                                            <!-- Dynamic rows will be added here -->
+                                        </tbody>
+                                        <tfoot id="expensesTotalRow" class="expenses-total-row hidden">
+                                            <!-- Total row will be added here -->
+                                        </tfoot>
+                                    </table>
+                                </div>
+                                <button id="addExpenseRow" type="button" class="mt-4 mb-8 bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors">
+                                    <span class="inline-flex items-center gap-2">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v14"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14"></path>
+                                        </svg>
+                                        <span>הוסף הוצאה חדשה</span>
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                        
+
+                        
+                        <!-- Retirement Tab -->
+                        <div id="content-retirement" class="tab-content hidden">
+                            <!-- Disabled state message -->
+                            <div id="retirement-disabled-state" class="w-full text-center py-12 bg-white rounded-lg shadow-lg">
+                                <div class="text-gray-400 mb-4 flex justify-center" aria-hidden="true">
+                                    <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0v4"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 11h12a2 2 0 012 2v7a2 2 0 01-2 2H6a2 2 0 01-2-2v-7a2 2 0 012-2z"></path>
+                                    </svg>
+                                </div>
+                                <h3 class="text-xl font-medium text-gray-600 mb-2">תיק פרישה לא פעיל</h3>
+                                <p class="text-gray-500 mb-4">כאשר תיק הפרישה לא פעיל, החישוב ישתמש בתיק הצבירה לכל התקופה.</p>
+                                <p class="text-sm text-gray-400">סמן את התיבה ליד "תיק פרישה" בתפריט הטאבים כדי להפעיל תיק פרישה נפרד.</p>
+                            </div>
+                            
+                            <!-- Enabled state content -->
+                            <div id="retirement-enabled-content" class="w-full hidden">
+                                <!-- Side-by-side layout: Chart + Table -->
+                                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                                    <!-- Left side: Donut Chart -->
+                                    <div class="lg:col-span-1 order-1">
+                                        <div class="bg-white rounded-lg shadow-lg p-6">
+                                            <h4 class="text-lg font-semibold mb-4 text-center text-purple-800">
+                                                <svg class="inline-block w-5 h-5 align-text-bottom ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 19V5"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 19h16"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 17V11"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 17V7"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 17V13"></path>
+                                                </svg>
+                                                הרכב תיק פרישה
+                                            </h4>
+                                            
+                                            <div id="retirement-chart-section">
+                                                <div class="donut-container">
+                                                    <div class="chart-wrapper chart-wrapper-lg mx-auto">
+                                                        <canvas id="retirementPortfolioChart" class="donut-chart"></canvas>
+                                                    </div>
+                                                </div>
+                                                <p class="text-xs text-gray-500 text-center mt-2">התרשים מציג את החלוקה המתוכננת לתיק הפרישה</p>
+                                            </div>
+                                            <div id="retirement-empty-state" class="text-center py-12 hidden">
+                                                <div class="text-gray-300 mb-4 flex justify-center" aria-hidden="true">
+                                                    <svg class="w-24 h-24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 19V5"></path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 19h16"></path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 17V11"></path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 17V7"></path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 17V13"></path>
+                                                    </svg>
+                                                </div>
+                                                <h6 class="text-lg font-medium text-gray-600 mb-2">אין הקצאת נכסים</h6>
+                                                <p class="text-gray-500">הוסף הקצאות לתיק הפרישה כדי לראות את התרשים</p>
+                                            </div>
+                                            
+                                            <!-- Summary Section -->
+                                            <div class="mt-6 p-4 bg-purple-50 rounded-lg">
+                                                <h5 class="text-md font-semibold mb-3 text-purple-800">
+                                                    <svg class="inline-block w-5 h-5 align-text-bottom ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5h7a2 2 0 012 2v12a2 2 0 01-2 2H8a2 2 0 01-2-2V8"></path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 3h7a2 2 0 012 2v2"></path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 11h6"></path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 15h6"></path>
+                                                    </svg>
+                                                    סיכום הקצאה
+                                                </h5>
+                                                <div class="space-y-2">
+                                                    <div class="flex justify-between text-sm">
+                                                        <span>סה"כ הקצאה:</span>
+                                                        <span id="retirementTotalAllocation" class="font-medium">100%</span>
+                                                    </div>
+                                                    <div class="flex justify-between text-sm">
+                                                        <span>תשואה משוקללת:</span>
+                                                        <span id="retirementWeightedReturn" class="font-medium">4.8%</span>
+                                                    </div>
+                                                    <div class="flex justify-between text-sm">
+                                                        <span>מספר סוגי נכסים:</span>
+                                                        <span id="retirementAssetCount" class="font-medium">0</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Right side: Allocation Table -->
+                                    <div class="lg:col-span-2 order-2">
+                                        <div id="retirementAllocationSection">
+                                            <div class="flex justify-between items-center mb-4">
+                                                <h4 class="font-medium">חלוקת תיק פרישה (אחוזים):</h4>
+                                            </div>
+                                            
+                                            <!-- Dynamic allocation table -->
+                                            <div class="overflow-x-auto bg-white rounded-lg shadow">
+                                                <table class="w-full">
+                                                    <thead class="bg-gray-50">
+                                                        <tr>
+                                                            <th class="px-6 py-3 text-right text-sm font-medium text-gray-900">סוג נכס</th>
+                                                            <th class="px-4 py-3 text-right text-sm font-medium text-gray-900">אחוז הקצאה (%)</th>
+                                                            <th class="px-4 py-3 text-right text-sm font-medium text-gray-900">תשואה צפויה (%)</th>
+                                                            <th class="px-4 py-3 text-center text-sm font-medium text-gray-900">פעולות</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="retirementAllocationTable">
+                                                        <!-- Dynamic rows will be added here -->
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            
+                                            <button id="addRetirementAllocationRow" type="button" class="mt-4 mb-8 bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors">
+                                                <span class="inline-flex items-center gap-2">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v14"></path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14"></path>
+                                                    </svg>
+                                                    <span>הוסף סוג נכס חדש</span>
+                                                </span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> <!-- End retirement-enabled-content -->
+                        </div>
+                        
+                        <!-- Results Tab -->
+                        <div id="content-results" class="tab-content hidden">
+                            <div class="w-full">
+                                <!-- Summary Cards -->
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                <div class="bg-white p-4 rounded-lg shadow text-center">
+                                    <h3 class="text-sm font-medium text-gray-600 mb-2">סה"כ הפקדות (עד פרישה)</h3>
+                                    <div id="totalContributions" class="text-2xl font-bold text-blue-600">₪0</div>
+                                    <div id="contributionsBreakdown" class="text-xs text-gray-500 mt-1"></div>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg shadow text-center">
+                                    <h3 class="text-sm font-medium text-gray-600 mb-2">משיכה שנתית</h3>
+                                    <div id="annualWithdrawalNet" class="text-2xl font-bold text-green-600">₪0</div>
+                                    <div id="annualWithdrawalGross" class="text-xs text-gray-500 mt-1"></div>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg shadow text-center">
+                                    <h3 class="text-sm font-medium text-gray-600 mb-2">הוצאה חודשית נטו בפרישה</h3>
+                                    <div id="monthlyExpenseNet" class="text-2xl font-bold text-purple-600">₪0</div>
+                                    <div id="monthlyExpenseGross" class="text-xs text-gray-500 mt-1"></div>
+                                </div>
+                            </div>
+
+                            <!-- Donut Charts -->
+                            <div class="bg-white rounded-lg shadow p-6 mb-6">
+                                <h3 class="text-lg font-semibold mb-4 text-center">התפלגות תיק לפי תקופות</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div class="donut-container">
+                                        <h4 class="text-sm font-medium mb-2">תיק בתחילת צבירה</h4>
+                                        <div class="chart-wrapper">
+                                            <canvas id="startAccumulationChart" class="donut-chart"></canvas>
+                                        </div>
+                                        <div id="startValue" class="text-lg font-bold mt-2 text-blue-600">₪0</div>
+                                        <div id="startUnrealizedGain" class="text-xs text-gray-500"></div>
+                                    </div>
+                                    <div class="donut-container">
+                                        <h4 class="text-sm font-medium mb-2">תיק לפני הפרישה</h4>
+                                        <div class="chart-wrapper">
+                                            <canvas id="startRetirementChart" class="donut-chart"></canvas>
+                                        </div>
+                                        <div id="peakValue" class="text-lg font-bold mt-2 text-green-600">₪0</div>
+                                        <div id="peakUnrealizedGain" class="text-xs text-gray-500"></div>
+                                        <div id="peakTaxToPay" class="text-xs text-center text-red-600 hidden"></div>
+                                    </div>
+                                    <div class="donut-container">
+                                        <h4 class="text-sm font-medium mb-2">תיק בסוף פרישה</h4>
+                                        <div class="chart-wrapper">
+                                            <canvas id="endRetirementChart" class="donut-chart"></canvas>
+                                        </div>
+                                        <div id="endValue" class="text-lg font-bold mt-2 text-purple-600">₪0</div>
+                                        <div id="endUnrealizedGain" class="text-xs text-gray-500"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Main Growth Chart -->
+                            <div class="bg-white rounded-lg shadow p-6 mb-6 group">
+                                <div class="flex justify-between items-center mb-2">
+                                    <h3 class="text-lg font-semibold text-center flex-1">גרף צמיחה ומשיכות</h3>
+                                    <div class="flex gap-1 items-center opacity-0 group-hover:opacity-100 transition-all">
+                                        <!-- Zoom In -->
+                                        <button id="zoomInBtn" class="w-8 h-8 flex items-center justify-center bg-white text-gray-700 rounded-full shadow transition-all duration-200 hover:scale-105 hover:bg-blue-50 hover:text-blue-600" title="הגדל">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"></path>
+                                            </svg>
+                                        </button>
+                                        <!-- Zoom Out -->
+                                        <button id="zoomOutBtn" class="w-8 h-8 flex items-center justify-center bg-white text-gray-700 rounded-full shadow transition-all duration-200 hover:scale-105 hover:bg-blue-50 hover:text-blue-600" title="הקטן">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7"></path>
+                                            </svg>
+                                        </button>
+                                        <!-- Reset Zoom -->
+                                        <button id="resetZoomBtn" class="w-8 h-8 flex items-center justify-center bg-white text-gray-700 rounded-full shadow transition-all duration-200 hover:scale-105 hover:bg-blue-50 hover:text-blue-600" title="אפס זום">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                            </svg>
+                                        </button>
+                                        <!-- Separator -->
+                                        <div class="w-px h-6 bg-gray-300 mx-1"></div>
+                                        <!-- Pan Left -->
+                                        <button id="panLeftBtn" class="w-8 h-8 flex items-center justify-center bg-white text-gray-700 rounded-full shadow transition-all duration-200 hover:scale-105 hover:bg-blue-50 hover:text-blue-600" title="הזז שמאלה">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                                            </svg>
+                                        </button>
+                                        <!-- Pan Right -->
+                                        <button id="panRightBtn" class="w-8 h-8 flex items-center justify-center bg-white text-gray-700 rounded-full shadow transition-all duration-200 hover:scale-105 hover:bg-blue-50 hover:text-blue-600" title="הזז ימינה">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                            </svg>
+                                        </button>
+                                        <!-- Separator -->
+                                        <div class="w-px h-6 bg-gray-300 mx-1"></div>
+                                        <!-- Copy Chart -->
+                                        <div class="relative">
+                                            <button id="copyMainChartBtn" class="peer plan-btn bg-white hover:bg-blue-50 text-gray-700 p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-105">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                                </svg>
+                                            </button>
+                                            <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded whitespace-nowrap opacity-0 peer-hover:opacity-100 transition-opacity pointer-events-none">העתק נתונים ללוח</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-500 text-center mb-2">גלגל עכבר לזום | גרירה להזזה</p>
+                                <div class="main-chart-wrapper relative">
+                                    <canvas id="mainChart" class="main-chart"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Expenses Chart -->
+                            <div id="results-expenses-chart-container" class="bg-white rounded-lg shadow p-6 mb-8 group">
+                                <div class="flex justify-between items-center mb-2">
+                                    <h3 class="text-lg font-semibold text-center flex-1">הוצאות מתוכננות</h3>
+                                    <div class="relative opacity-0 group-hover:opacity-100 transition-all">
+                                        <button id="copyResultsExpensesChartBtn" class="peer plan-btn bg-white hover:bg-blue-50 text-gray-700 p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-105">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                            </svg>
+                                        </button>
+                                        <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded whitespace-nowrap opacity-0 peer-hover:opacity-100 transition-opacity pointer-events-none">העתק נתונים ללוח</span>
+                                    </div>
+                                </div>
+                                <div class="main-chart-wrapper">
+                                    <canvas id="resultsExpensesChart" class="main-chart"></canvas>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+
+                        <!-- Money Flow Tab (Sankey) -->
+                        <div id="content-money-flow" class="tab-content hidden">
+                            <div class="w-full">
+                                <!-- Controls Section -->
+                                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+                                    <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                                        
+                                        <!-- Window Size Control -->
+                                        <div class="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200">
+                                            <span class="text-sm text-gray-600">תצוגה של</span>
+                                            <input type="number" id="sankey-window-size" class="w-16 text-center bg-white border-gray-300 rounded-md text-sm focus:ring-green-500 focus:border-green-500" min="1" max="50" value="5">
+                                            <span class="text-sm text-gray-600">שנים</span>
+                                        </div>
+
+                                        <!-- Navigation Controls -->
+                                        <div class="flex items-center gap-2" dir="ltr">
+                                            <button id="sankey-prev-year" class="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-full shadow-lg transition-all duration-200 hover:scale-105 disabled:opacity-30 disabled:cursor-not-allowed" title="שנה קודמת">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                                </svg>
+                                            </button>
+                                            
+                                            <div class="relative group">
+                                                <input type="number" id="sankey-start-year" class="w-24 px-2 py-2 text-center font-bold text-lg text-gray-800 border-2 border-transparent hover:border-gray-200 focus:border-green-500 rounded-lg transition-all focus:outline-none" title="שנה התחלתית">
+                                            </div>
+
+                                            <button id="sankey-next-year" class="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-full shadow-lg transition-all duration-200 hover:scale-105 disabled:opacity-30 disabled:cursor-not-allowed" title="שנה הבאה">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                                </svg>
+                                            </button>
+                                        </div>
+
+                                        <!-- Range Display -->
+                                        <div class="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg border border-blue-100">
+                                            <span class="text-sm font-medium">טווח מוצג:</span>
+                                            <span id="sankey-year-display" class="font-bold dir-ltr">2025 - 2030</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Sankey Diagram -->
+                                <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                                    <div class="flex justify-between items-center mb-4">
+                                        <h3 class="text-lg font-semibold text-gray-800">
+                                            <svg class="inline-block w-5 h-5 align-text-bottom ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 17h16"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v10"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7v10"></path>
+                                            </svg>
+                                            תרשים תזרים כספי (Sankey)
+                                        </h3>
+                                        <div class="flex gap-2">
+                                            <button id="export-sankey-png" class="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 transition-all" title="ייצא כ-PNG">
+                                                <span class="inline-flex items-center gap-1" dir="ltr">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h3l2-2h6l2 2h3v12H4V7z"></path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10a3 3 0 100 6 3 3 0 000-6z"></path>
+                                                    </svg>
+                                                    <span>PNG</span>
+                                                </span>
+                                            </button>
+                                            <button id="export-sankey-csv" class="px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600 transition-all" title="ייצא כ-CSV">
+                                                <span class="inline-flex items-center gap-1" dir="ltr">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 19V5"></path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 19h16"></path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 17V11"></path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 17V7"></path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 17V13"></path>
+                                                    </svg>
+                                                    <span>CSV</span>
+                                                </span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div id="sankey-container" class="w-full overflow-x-auto sankey-min-height">
+                                        <svg id="sankey-chart" width="100%" height="600"></svg>
+                                    </div>
+                                    <div id="sankey-message" class="text-center text-gray-500 py-8">
+                                        הזן נתונים בתיק הצבירה כדי לראות את תרשים תזרים הכספים
+                                    </div>
+                                </div>
+
+                                <!-- Statistics Summary -->
+                                <div class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg shadow-lg p-6">
+                                    <h3 class="text-lg font-semibold mb-4 text-gray-800">
+                                        <svg class="inline-block w-5 h-5 align-text-bottom ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 17l6-6 4 4 8-8"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 7h7v7"></path>
+                                        </svg>
+                                        סטטיסטיקות תזרים
+                                    </h3>
+                                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                        <div class="bg-white p-4 rounded-lg text-center">
+                                            <div class="text-sm text-gray-600 mb-1">סה"כ תזרימים נכנסים</div>
+                                            <div id="sankey-total-inflows" class="text-2xl font-bold text-green-600">₪0</div>
+                                        </div>
+                                        <div class="bg-white p-4 rounded-lg text-center">
+                                            <div class="text-sm text-gray-600 mb-1">סה"כ תזרימים יוצאים</div>
+                                            <div id="sankey-total-outflows" class="text-2xl font-bold text-red-600">₪0</div>
+                                        </div>
+                                        <div class="bg-white p-4 rounded-lg text-center">
+                                            <div class="text-sm text-gray-600 mb-1">תזרים נטו</div>
+                                            <div id="sankey-net-flow" class="text-2xl font-bold text-blue-600">₪0</div>
+                                        </div>
+                                        <div class="bg-white p-4 rounded-lg text-center">
+                                            <div class="text-sm text-gray-600 mb-1">טווח שנים</div>
+                                            <div id="sankey-year-range" class="text-xl font-bold text-purple-600">-</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Options Modal -->
+    <div id="exportOptionsModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">ייצוא ל-Excel</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <label for="exportScenarioName" class="block text-sm font-medium text-gray-700 mb-1">
+                        שם תרחיש <span class="text-red-500">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="exportScenarioName" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        placeholder="תוכנית FIRE שלי"
+                        maxlength="100"
+                    />
+                </div>
+                
+                <div>
+                    <label for="exportScenarioNotes" class="block text-sm font-medium text-gray-700 mb-1">
+                        הערות תרחיש (אופציונלי)
+                    </label>
+                    <textarea 
+                        id="exportScenarioNotes" 
+                        rows="3"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                        placeholder="הערות נוספות על התוכנית..."
+                        maxlength="500"
+                    ></textarea>
+                </div>
+            </div>
+            
+            <div class="flex justify-end gap-3 mt-6">
+                <button 
+                    id="exportModalCancel" 
+                    class="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors">
+                    ביטול
+                </button>
+                <button 
+                    id="exportModalConfirm" 
+                    class="px-4 py-2 text-white bg-purple-600 rounded-md hover:bg-purple-700 transition-colors">
+                    ייצא
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load the modular TypeScript application -->
+    <script type="module" src="/js/app.js"></script>
+
+    <!-- Legal Disclaimer Footer -->
+    <footer class="mt-8 bg-gray-100 border-t border-gray-300 px-4 py-3 text-center">
+        <div class="text-xs text-gray-500 leading-loose">
+            <div><strong class="text-gray-600">⚠️ כתב ויתור:</strong></div>
+            <div>כלי זה מיועד למטרות מידע והשכלה בלבד ואינו מהווה ייעוץ פיננסי, מס, השקעות או משפטי.</div>
+            <div>כל התחזיות והחישובים הם הערכות בלבד ועשויים להיות שגויים.</div>
+            <div><strong class="text-gray-600">יש להתייעץ עם יועץ פיננסי מורשה, רואה חשבון או עורך דין לפני קבלת כל החלטה פיננסית.</strong></div>
+            <div>המחברים אינם אחראים לכל הפסד או נזק הנובע משימוש בכלי זה.</div>
+        </div>
+    </footer>
+</body>
+</html>
