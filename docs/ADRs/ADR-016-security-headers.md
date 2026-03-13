@@ -111,5 +111,5 @@ Add **security headers middleware** in the ASP.NET Core pipeline and make it par
 ## References
 
 - `src/Program.cs`
-- `docs/security/SECURITY.md`
+- `.github/SECURITY.md`
 - [OWASP Secure Headers Project](https://owasp.org/www-project-secure-headers/)

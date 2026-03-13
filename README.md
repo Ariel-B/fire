@@ -17,8 +17,8 @@ A comprehensive C# ASP.NET Core web application for FIRE (Financial Independence
 - 💰 **FIRE Calculations** - Calculate your exact path to financial independence with partial-year accuracy
 - 🎯 **Target Portfolio Calculator** - See the portfolio value needed to achieve your target monthly expense
 - 🧮 **Tax Planning** - Account for capital gains tax in your projections
-- � **Live Exchange Rates** - Automatic USD/ILS currency conversion using real-time exchange rates from external APIs
-- �💾 **Save/Load Plans** - Export and import your financial plans as JSON files
+- 💱 **Live Exchange Rates** - Automatic USD/ILS currency conversion using real-time exchange rates from external APIs
+- 💾 **Save/Load Plans** - Export and import your financial plans as JSON files
 - 📱 **Responsive Design** - Works seamlessly on desktop and mobile devices
 - 🌍 **Hebrew RTL Support** - Complete right-to-left interface with Hebrew language
 - 📈 **Interactive Charts** - Real-time visualization of portfolio growth and projections
@@ -264,6 +264,7 @@ The application includes Docker support for production deployment. See the Quick
 - Automatic TypeScript compilation and .NET build
 - Health checks and auto-restart capabilities
 - Runs as non-root user for security
+- Container listens on port 8080 and is published on host port 5162 by default
 
 **Quick Commands:**
 ```bash
@@ -296,7 +297,7 @@ docker service create \
 ```
 
 **Common Issues:**
-- **Container not accessible:** Check `docker ps` shows "healthy" status, wait 30s for health check
+- **Container not accessible:** Check `docker ps` shows "healthy" status, wait 30s for the `/health` check on container port 8080
 - **Build fails:** Ensure Docker Desktop is running and has sufficient resources
 - **Missing API key:** Set via `.env` file (compose) or `-e` flag (manual run)
 
