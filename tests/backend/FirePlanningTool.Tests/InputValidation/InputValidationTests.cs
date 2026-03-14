@@ -81,7 +81,7 @@ using FirePlanningTool.ValueObjects;
             var result = calculator.Calculate(input);
 
             result.Should().NotBeNull();
-            result.EndValue.Should().BeGreaterOrEqualTo(0);
+            result.EndValue.Should().BeGreaterThanOrEqualTo(0);
         }
 
         #endregion
@@ -113,7 +113,7 @@ using FirePlanningTool.ValueObjects;
 
             result.YearlyData.Count.Should().BeGreaterThan(0);
             result.PeakValue.Should().BeGreaterThan(0);
-            result.EndValue.Should().BeGreaterOrEqualTo(0);
+            result.EndValue.Should().BeGreaterThanOrEqualTo(0);
         }
 
         [Fact]
@@ -161,7 +161,7 @@ using FirePlanningTool.ValueObjects;
             var result = calculator.Calculate(input);
 
             result.Should().NotBeNull();
-            result.EndValue.Should().BeGreaterOrEqualTo(0);
+            result.EndValue.Should().BeGreaterThanOrEqualTo(0);
         }
 
         [Fact]
@@ -316,7 +316,7 @@ using FirePlanningTool.ValueObjects;
             var result = calculator.Calculate(input);
 
             result.PeakValue.Should().BeGreaterThan(1000000);
-            result.EndValue.Should().BeGreaterOrEqualTo(0);
+            result.EndValue.Should().BeGreaterThanOrEqualTo(0);
         }
 
         #endregion
