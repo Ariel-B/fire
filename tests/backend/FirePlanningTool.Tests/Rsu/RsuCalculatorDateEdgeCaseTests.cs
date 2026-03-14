@@ -39,7 +39,7 @@ namespace FirePlanningTool.Tests.Rsu
 
             // Assert: Should handle leap year anniversary correctly
             // After ~1 year, with 1-year cliff, should have some vesting (25%)
-            vested.Should().BeGreaterOrEqualTo(0);
+            vested.Should().BeGreaterThanOrEqualTo(0);
         }
 
         [Fact]
