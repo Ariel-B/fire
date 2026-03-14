@@ -312,14 +312,18 @@ The project uses **xUnit** for backend tests and **Jest** for frontend tests wit
 
 **Quick Start:**
 ```bash
-# Run all tests (backend + frontend)
+# Run the full test suite
 make test
+make test-e2e
 
 # Backend tests only (xUnit)
 make test-backend
 
 # Frontend tests only (Jest)
 make test-frontend
+
+# Browser end-to-end tests only (Playwright)
+make test-e2e
 
 # With coverage reports
 make test-coverage

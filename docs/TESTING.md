@@ -178,17 +178,20 @@ The Playwright suite covers these distinct areas:
 ## Using Makefile (Recommended)
 
 ```bash
-# Run all tests
+# Run backend + frontend unit/integration tests
 make test
+
+# Run browser end-to-end tests
+make test-e2e
+
+# Run the full test suite
+make test && make test-e2e
 
 # Run backend tests only
 make test-backend
 
 # Run frontend tests only
 make test-frontend
-
-# Run browser end-to-end tests
-make test-e2e
 
 # Run all tests with coverage
 make test-coverage
