@@ -49,6 +49,7 @@
     "jest-junit": "^16.0.0",
     "playwright": "^1.58.2",
     "tailwindcss": "^4.2.1",
+    "@tailwindcss/cli": "^4.2.1",
     "typescript": "^5.9.3"
   }
 }
