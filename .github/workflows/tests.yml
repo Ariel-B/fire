@@ -165,14 +165,14 @@ jobs:
         node-version: '18'
       
     - name: Download backend coverage
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: backend-coverage
         path: ./coverage-backend
       continue-on-error: true
       
     - name: Download frontend coverage
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: frontend-coverage
         path: ./coverage-frontend
