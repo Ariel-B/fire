@@ -6,7 +6,7 @@
   "scripts": {
     "build": "npm run build:css && tsc",
     "build:watch": "tsc --watch",
-    "build:css": "tailwindcss -c tailwind.config.cjs -i ./wwwroot/css/tailwind-input.css -o ./wwwroot/css/tailwind.css --minify",
+    "build:css": "tailwindcss -i ./wwwroot/css/tailwind-input.css -o ./wwwroot/css/tailwind.css --minify",
     "check:coverage": "node tools/check-coverage.mjs",
     "screenshots": "node tools/regenerate-docs-screenshots.mjs",
     "test": "jest",
@@ -43,6 +43,7 @@
     "@axe-core/playwright": "^4.11.1",
     "@babel/core": "^7.28.5",
     "@babel/preset-env": "^7.28.5",
+    "@tailwindcss/cli": "^4.2.1",
     "@types/chart.js": "^2.9.41",
     "jest": "^30.2.0",
     "jest-junit": "^16.0.0",
