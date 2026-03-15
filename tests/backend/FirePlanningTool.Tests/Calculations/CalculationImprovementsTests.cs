@@ -200,7 +200,7 @@ namespace FirePlanningTool.Tests.Calculations
 
             // Assert - portfolio should be positive but decreasing
             result.YearlyData.Should().HaveCountGreaterThan(10);
-            result.EndValue.Should().BeGreaterOrEqualTo(0);
+            result.EndValue.Should().BeGreaterThanOrEqualTo(0);
 
             // The portfolio value should generally trend downward or be maintained
             var firstRetirementValue = result.YearlyData.First().PortfolioValue;

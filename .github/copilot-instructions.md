@@ -63,7 +63,8 @@ docker-compose up -d       # Includes API key from .env file
 ### Testing Workflow
 ```bash
 # Run ALL tests (recommended before commits)
-make test                  # Runs both backend + frontend
+make test                  # Runs backend + frontend unit/integration tests
+make test-e2e              # Runs Playwright end-to-end tests
 
 # Backend only (xUnit tests)
 dotnet test fire.sln
@@ -77,11 +78,11 @@ make test-coverage
 # Frontend: artifacts/coverage/frontend/index.html
 ```
 
-**Important for agents:** In this repository, a request to "run all tests" means running both the backend and frontend suites explicitly. Do **not** rely only on editor-integrated test runners such as `runTests`, because they may omit the Jest frontend suite.
+**Important for agents:** In this repository, a request to "run all tests" means running the backend xUnit suite, the frontend Jest suite, and the Playwright E2E suite. Do **not** rely only on editor-integrated test runners such as `runTests`, because they may omit the Jest frontend suite and they do not cover the Playwright browser tests.
 
 Use one of these approaches:
-- `make test`
-- `dotnet test fire.sln --no-restore` and `npm test -- --runInBand`
+- `make test && make test-e2e`
+- `dotnet test fire.sln --no-restore`, `npm test -- --runInBand`, and `npm run test:e2e`
 
 > **📊 Test Metrics & Coverage:** See [docs/TEST_COVERAGE_REPORT.md](../docs/TEST_COVERAGE_REPORT.md) for current test counts, coverage percentages, and comprehensive analysis.
 

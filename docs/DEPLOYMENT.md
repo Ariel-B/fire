@@ -50,11 +50,13 @@ spec:
       - name: fire-planning-tool
         image: fire-planning-tool:latest
         ports:
-        - containerPort: 5162
+        - containerPort: 8080
           protocol: TCP
         env:
         - name: ASPNETCORE_ENVIRONMENT
           value: "Production"
+        - name: ASPNETCORE_URLS
+          value: "http://+:8080"
         - name: Finnhub__ApiKey
           valueFrom:
             secretKeyRef:
@@ -63,7 +65,7 @@ spec:
         livenessProbe:
           httpGet:
             path: /health
-            port: 5162
+            port: 8080
             scheme: HTTP
           initialDelaySeconds: 10
           periodSeconds: 30
@@ -73,7 +75,7 @@ spec:
         readinessProbe:
           httpGet:
             path: /health
-            port: 5162
+            port: 8080
             scheme: HTTP
           initialDelaySeconds: 5
           periodSeconds: 10
@@ -126,12 +128,13 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "5162:5162"
+      - "5162:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
       - Finnhub__ApiKey=${FINNHUB_API_KEY}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5162/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -152,9 +155,10 @@ COPY --from=build /app/publish .
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD curl -f http://localhost:5162/health || exit 1
+  CMD curl -f http://localhost:8080/health || exit 1
 
-EXPOSE 5162
+EXPOSE 8080
+ENV ASPNETCORE_URLS=http://+:8080
 ENTRYPOINT ["dotnet", "FirePlanningTool.dll"]
 ```
 
@@ -170,7 +174,7 @@ export FINNHUB_API_KEY="your-api-key-here"
 $env:FINNHUB_API_KEY="your-api-key-here"
 
 # Docker run
-docker run -e Finnhub__ApiKey="your-api-key-here" fire-planning-tool:latest
+docker run -p 5162:8080 -e Finnhub__ApiKey="your-api-key-here" fire-planning-tool:latest
 
 # Docker Compose
 # Create a .env file with:
@@ -213,8 +217,8 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-  - port: 5162
-    targetPort: 5162
+  - port: 8080
+    targetPort: 8080
     protocol: TCP
     name: http
   selector:

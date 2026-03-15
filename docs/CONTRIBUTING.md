@@ -173,7 +173,7 @@ When reporting a bug, please include:
 - Browser/platform information
 - Which currency (USD/ILS) exhibits the issue
 
-Use the GitHub issue templates to keep reports actionable. For security issues, follow [`docs/security/SECURITY.md`](security/SECURITY.md) instead of opening a public issue.
+Use the GitHub issue templates to keep reports actionable. For security issues, follow [`SECURITY.md`](../.github/SECURITY.md) instead of opening a public issue.
 
 ## Questions or Need Help?
 

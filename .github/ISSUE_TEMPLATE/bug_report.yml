@@ -9,7 +9,7 @@ body:
       value: |
         Thanks for taking the time to report a problem.
 
-        For security issues, do not open a public issue. Please follow the instructions in [docs/security/SECURITY.md](../../docs/security/SECURITY.md).
+        For security issues, do not open a public issue. Please follow the instructions in [SECURITY.md](../../.github/SECURITY.md).
   - type: textarea
     id: summary
     attributes:

@@ -92,7 +92,7 @@ public class SupportedCurrenciesTests
         // Assert
         result.Should().Contain("USD");
         result.Should().Contain("ILS");
-        result.Should().HaveCountGreaterOrEqualTo(2);
+        result.Should().HaveCountGreaterThanOrEqualTo(2);
     }
 
     [Fact]

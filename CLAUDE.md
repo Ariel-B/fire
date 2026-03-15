@@ -19,17 +19,19 @@ dotnet build
 dotnet run                    # http://localhost:5162
 
 # Testing
-make test                     # All tests (backend + frontend)
+make test                     # Backend + frontend unit/integration tests
+make test-e2e                 # Playwright end-to-end tests
 make test-backend             # xUnit only
 make test-frontend            # Jest only
 dotnet test fire.sln          # Backend directly
 npm test                      # Frontend directly
 make test-coverage            # With coverage reports
 
-# IMPORTANT: for this repo, "run all tests" means backend + frontend explicitly.
-# Do not rely solely on editor-integrated test runners because they may omit Jest.
+# IMPORTANT: for this repo, "run all tests" means backend + frontend + Playwright E2E.
+# Do not rely solely on editor-integrated test runners because they may omit Jest and Playwright.
 dotnet test fire.sln --no-restore
 npm test -- --runInBand
+npm run test:e2e
 
 # TypeScript watch mode for development
 npx tsc --watch

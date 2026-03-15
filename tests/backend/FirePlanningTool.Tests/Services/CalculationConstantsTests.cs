@@ -81,7 +81,7 @@ namespace FirePlanningTool.Tests.Services
         {
             // Extreme case: portfolio is 1000x cost basis
             var result = CalculationConstants.CalculateSafeProfitRatio(1000000, 1);
-            result.Should().BeLessOrEqualTo(1.0m);
+            result.Should().BeLessThanOrEqualTo(1.0m);
             result.Should().BeApproximately(0.999999m, 0.01m);
         }
 

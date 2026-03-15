@@ -12,7 +12,7 @@ If you discover a security vulnerability in this project, please **do not** open
 
 Instead, please report it privately via one of the following methods:
 
-- **GitHub Private Security Advisory**: Use the [Report a vulnerability](../../security/advisories/new) button on the Security tab of this repository.
+- **GitHub Private Security Advisory**: Use the [Report a vulnerability](https://github.com/Ariel-B/fire/security/advisories/new) button on the Security tab of this repository.
 - **Email**: Send a description of the vulnerability to the maintainer via the contact information on the [GitHub profile](https://github.com/Ariel-B).
 
 ### What to include in your report
