@@ -203,8 +203,8 @@ builder.Services.AddCors(options =>
             if (allowedOrigins.Length > 0)
             {
                 policy.WithOrigins(allowedOrigins)
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
+                    .WithMethods("GET", "POST")
+                    .WithHeaders("Content-Type", "Accept")
                     .AllowCredentials();
             }
         }
@@ -226,6 +226,13 @@ app.UseCors();
 // Add security headers
 app.Use(async (context, next) =>
 {
+    // Enforce HTTPS and prevent protocol downgrade attacks (production only —
+    // avoid breaking local development over plain HTTP)
+    if (!app.Environment.IsDevelopment())
+    {
+        context.Response.Headers.Append("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+    }
+
     // Prevent clickjacking
     context.Response.Headers.Append("X-Frame-Options", "SAMEORIGIN");
 

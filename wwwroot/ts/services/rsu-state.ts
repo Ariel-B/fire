@@ -489,7 +489,7 @@ export function calculateCurrentRsuSummary(): RsuSummary {
 const RSU_STORAGE_KEY = 'firePlanningTool_rsuState';
 
 /**
- * Save RSU state to localStorage
+ * Save RSU state to sessionStorage (scoped to the browser tab; cleared on close)
  */
 export function saveRsuState(): void {
   try {
@@ -498,18 +498,18 @@ export function saveRsuState(): void {
       nextGrantId: rsuState.nextGrantId,
       includeInCalculations: rsuState.includeInCalculations
     };
-    localStorage.setItem(RSU_STORAGE_KEY, JSON.stringify(stateToSave));
+    sessionStorage.setItem(RSU_STORAGE_KEY, JSON.stringify(stateToSave));
   } catch (error) {
     console.error('Failed to save RSU state:', error);
   }
 }
 
 /**
- * Load RSU state from localStorage
+ * Load RSU state from sessionStorage
  */
 export function loadRsuState(): void {
   try {
-    const saved = localStorage.getItem(RSU_STORAGE_KEY);
+    const saved = sessionStorage.getItem(RSU_STORAGE_KEY);
     if (saved) {
       const parsed = JSON.parse(saved);
       rsuState.configuration = {
@@ -526,11 +526,11 @@ export function loadRsuState(): void {
 }
 
 /**
- * Clear RSU state from localStorage
+ * Clear RSU state from sessionStorage
  */
 export function clearRsuStorage(): void {
   try {
-    localStorage.removeItem(RSU_STORAGE_KEY);
+    sessionStorage.removeItem(RSU_STORAGE_KEY);
     rsuState = { ...initialState };
     notifyListeners();
   } catch (error) {

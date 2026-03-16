@@ -425,8 +425,14 @@ export function createPlanPersistence(dependencies: PlanPersistenceDependencies)
     }
   }
 
+  // Strip keys that can pollute the prototype chain when spread into a plain object.
+  function stripDangerousKeys(obj: Record<string, unknown>): Record<string, unknown> {
+    const dangerous = new Set(['__proto__', 'constructor', 'prototype']);
+    return Object.fromEntries(Object.entries(obj).filter(([k]) => !dangerous.has(k)));
+  }
+
   async function loadPlanFromData(rawData: unknown): Promise<void> {
-    const parsedData = (rawData ?? {}) as Record<string, any>;
+    const parsedData = stripDangerousKeys((rawData ?? {}) as Record<string, unknown>) as Record<string, any>;
     const parseYear = (value: unknown): number | undefined => {
       if (value === undefined || value === null) {
         return undefined;
@@ -436,7 +442,9 @@ export function createPlanPersistence(dependencies: PlanPersistenceDependencies)
       return Number.isInteger(parsedYear) ? parsedYear : undefined;
     };
 
-    const planData = parsedData.inputs ? { ...parsedData.inputs, ...parsedData } : parsedData;
+    const planData = parsedData.inputs
+      ? { ...stripDangerousKeys(parsedData.inputs), ...parsedData }
+      : parsedData;
     const rawPortfolioData = planData.accumulationPortfolio ?? planData.portfolio ?? [];
     state.accumulationPortfolio = normalizePortfolioAssetsFromFile(rawPortfolioData);
 

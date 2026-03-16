@@ -195,7 +195,11 @@ namespace FirePlanningTool.Services
         {
             try
             {
-                // exchangerate.host latest endpoint
+                // exchangerate.host latest endpoint.
+                // NOTE: This API only supports query-parameter authentication (access_key);
+                // header-based auth is not documented or supported by the provider.
+                // If the API key is not configured the free tier (no key) is used instead,
+                // and the Frankfurter fallback requires no key at all.
                 var url = $"https://api.exchangerate.host/live?source={baseCurrency}&currencies={targetCurrency}";
                 if (!string.IsNullOrEmpty(_config.ApiKey))
                 {

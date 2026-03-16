@@ -1231,42 +1231,42 @@ describe('subscribeToRsuState', () => {
 });
 
 // ============================================================================
-// State Persistence (localStorage)
+// State Persistence (sessionStorage)
 // ============================================================================
 
 describe('State Persistence', () => {
-  let localStorageMock;
+  let sessionStorageMock;
 
   beforeEach(() => {
     resetRsuState();
 
-    // Mock localStorage
+    // Mock sessionStorage
     const store = {};
-    localStorageMock = {
+    sessionStorageMock = {
       getItem: jest.fn(key => store[key] ?? null),
       setItem: jest.fn((key, value) => { store[key] = value; }),
       removeItem: jest.fn(key => { delete store[key]; })
     };
-    Object.defineProperty(global, 'localStorage', {
-      value: localStorageMock,
+    Object.defineProperty(global, 'sessionStorage', {
+      value: sessionStorageMock,
       writable: true
     });
   });
 
   describe('saveRsuState', () => {
-    test('saves current state to localStorage', () => {
+    test('saves current state to sessionStorage', () => {
       updateRsuConfiguration({ stockSymbol: 'TSLA' });
 
       saveRsuState();
 
-      expect(localStorageMock.setItem).toHaveBeenCalledWith(
+      expect(sessionStorageMock.setItem).toHaveBeenCalledWith(
         'firePlanningTool_rsuState',
         expect.stringContaining('TSLA')
       );
     });
 
-    test('handles localStorage error gracefully', () => {
-      localStorageMock.setItem.mockImplementation(() => {
+    test('handles sessionStorage error gracefully', () => {
+      sessionStorageMock.setItem.mockImplementation(() => {
         throw new Error('Storage quota exceeded');
       });
 
@@ -1282,7 +1282,7 @@ describe('State Persistence', () => {
       expect(getRsuConfiguration().stockSymbol).toBe('');
     });
 
-    test('restores state from localStorage', () => {
+    test('restores state from sessionStorage', () => {
       updateRsuConfiguration({ stockSymbol: 'NVDA' });
       saveRsuState();
 
@@ -1293,8 +1293,8 @@ describe('State Persistence', () => {
       expect(getRsuConfiguration().stockSymbol).toBe('NVDA');
     });
 
-    test('handles localStorage error gracefully', () => {
-      localStorageMock.getItem.mockImplementation(() => {
+    test('handles sessionStorage error gracefully', () => {
+      sessionStorageMock.getItem.mockImplementation(() => {
         throw new Error('Access denied');
       });
 
@@ -1303,12 +1303,12 @@ describe('State Persistence', () => {
   });
 
   describe('clearRsuStorage', () => {
-    test('clears saved state from localStorage', () => {
+    test('clears saved state from sessionStorage', () => {
       saveRsuState();
 
       clearRsuStorage();
 
-      expect(localStorageMock.removeItem).toHaveBeenCalledWith('firePlanningTool_rsuState');
+      expect(sessionStorageMock.removeItem).toHaveBeenCalledWith('firePlanningTool_rsuState');
     });
 
     test('resets in-memory state', () => {
@@ -1318,8 +1318,8 @@ describe('State Persistence', () => {
       expect(getRsuConfiguration().stockSymbol).toBe('');
     });
 
-    test('handles localStorage error gracefully', () => {
-      localStorageMock.removeItem.mockImplementation(() => {
+    test('handles sessionStorage error gracefully', () => {
+      sessionStorageMock.removeItem.mockImplementation(() => {
         throw new Error('Permission denied');
       });
 

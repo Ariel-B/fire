@@ -34,6 +34,12 @@ namespace FirePlanningTool.Repositories
             _configuration = configuration.Value;
             _logger = logger;
             _assetNameLookup = assetNamesConfig.Value.GetFlattenedLookup();
+
+            // Use header-based auth to keep the API key out of URLs (and therefore logs/history)
+            if (!string.IsNullOrEmpty(_configuration.ApiKey))
+            {
+                _httpClient.DefaultRequestHeaders.Add("X-Finnhub-Token", _configuration.ApiKey);
+            }
         }
 
         /// <inheritdoc />
@@ -42,7 +48,7 @@ namespace FirePlanningTool.Repositories
             try
             {
                 var encodedSymbol = Uri.EscapeDataString(symbol);
-                var url = $"{_configuration.BaseUrl}/quote?symbol={encodedSymbol}&token={_configuration.ApiKey}";
+                var url = $"{_configuration.BaseUrl}/quote?symbol={encodedSymbol}";
                 var response = await _httpClient.GetAsync(url);
 
                 if (!response.IsSuccessStatusCode)
@@ -79,7 +85,7 @@ namespace FirePlanningTool.Repositories
             {
                 // Try Finnhub first
                 var encodedSymbol = Uri.EscapeDataString(symbol);
-                var url = $"{_configuration.BaseUrl}/stock/profile2?symbol={encodedSymbol}&token={_configuration.ApiKey}";
+                var url = $"{_configuration.BaseUrl}/stock/profile2?symbol={encodedSymbol}";
                 var response = await _httpClient.GetAsync(url);
 
                 if (!response.IsSuccessStatusCode)
@@ -129,7 +135,7 @@ namespace FirePlanningTool.Repositories
             try
             {
                 var encodedSymbol = Uri.EscapeDataString(symbol);
-                var url = $"{_configuration.BaseUrl}/stock/candle?symbol={encodedSymbol}&resolution=M&from={fromTimestamp}&to={toTimestamp}&token={_configuration.ApiKey}";
+                var url = $"{_configuration.BaseUrl}/stock/candle?symbol={encodedSymbol}&resolution=M&from={fromTimestamp}&to={toTimestamp}";
                 var response = await _httpClient.GetAsync(url);
 
                 if (!response.IsSuccessStatusCode)

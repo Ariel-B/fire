@@ -122,7 +122,7 @@ namespace FirePlanningTool.Controllers
             catch (JsonException ex)
             {
                 _logger.LogError(ex, "JSON deserialization error during Excel export: {Message}", ex.Message);
-                return BadRequest(new ApiErrorResponse($"Invalid request format: {ex.Message}"));
+                return BadRequest(new ApiErrorResponse("Invalid request format"));
             }
             catch (ArgumentException ex)
             {
