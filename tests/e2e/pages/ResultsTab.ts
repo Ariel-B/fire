@@ -44,4 +44,14 @@ export class ResultsTab {
   formulaPanel(key: string): Locator {
     return this.page.locator(`[data-formula-panel="${key}"]`);
   }
+
+  async activateFormulaTrigger(key: string, isMobile: boolean): Promise<void> {
+    const trigger = this.formulaTrigger(key);
+    if (isMobile) {
+      await trigger.dispatchEvent('click');
+      return;
+    }
+
+    await trigger.click();
+  }
 }

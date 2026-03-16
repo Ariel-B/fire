@@ -160,7 +160,7 @@ namespace FirePlanningTool.Services
             var initialGrossAnnualWithdrawal = peakValue * input.WithdrawalRate / 100;
             var effectiveTaxRate = _taxCalculator.CalculateEffectiveTaxRate(profitRatio, input.CapitalGainsTax);
             var initialAnnualWithdrawal = initialGrossAnnualWithdrawal * (1 - effectiveTaxRate);
-            var initialGrossMonthlyExpense = initialGrossAnnualWithdrawal / 12;
+            var initialMonthlyGross = initialGrossAnnualWithdrawal / 12;
             var initialMonthlyNet = initialAnnualWithdrawal / 12;
 
             // Convert pension to USD for calculations
@@ -208,7 +208,7 @@ namespace FirePlanningTool.Services
                 EndValue = Math.Max(0, retirementResult.EndPortfolioValue),
                 GrossAnnualWithdrawal = initialGrossAnnualWithdrawal,
                 NetAnnualWithdrawal = initialAnnualWithdrawal,
-                GrossMonthlyExpense = initialGrossMonthlyExpense,
+                GrossMonthlyExpense = initialMonthlyGross,
                 NetMonthlyExpense = initialMonthlyNet,
                 YearlyData = allYearlyData,
                 AccumulationPortfolio = input.AccumulationPortfolio,

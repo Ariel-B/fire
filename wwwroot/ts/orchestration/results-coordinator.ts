@@ -55,7 +55,28 @@ type ResultsCoordinatorDependencies = {
 };
 
 const DEFAULT_RESULTS_PROJECTION_AGE = 100;
-const FORMULA_CLOSE_DELAY_MS = 100;
+const FORMULA_CLOSE_HOVER_DELAY_MS = 100;
+
+function defaultEscapeHtml(value: string | number | null | undefined): string {
+  return String(value ?? '').replace(/[&<>"'`]/g, (char) => {
+    switch (char) {
+      case '&':
+        return '&amp;';
+      case '<':
+        return '&lt;';
+      case '>':
+        return '&gt;';
+      case '"':
+        return '&quot;';
+      case '\'':
+        return '&#39;';
+      case '`':
+        return '&#96;';
+      default:
+        return char;
+    }
+  });
+}
 
 type ResultsFormulaVariable = {
   label: string;
@@ -244,7 +265,7 @@ export function buildResultsFormulaExplanations({
 }
 
 export function createResultsCoordinator(dependencies: ResultsCoordinatorDependencies) {
-  const escape = dependencies.escapeHtml ?? ((value: string | number | null | undefined) => String(value ?? ''));
+  const escape = dependencies.escapeHtml ?? defaultEscapeHtml;
   let formulaPanelsInitialized = false;
   let activeFormulaPanelKey: ResultsFormulaPanelKey | null = null;
   let pinnedFormulaPanelKey: ResultsFormulaPanelKey | null = null;
@@ -318,7 +339,7 @@ export function createResultsCoordinator(dependencies: ResultsCoordinatorDepende
         activeFormulaPanelKey = null;
       }
       formulaCloseTimeout = null;
-    }, FORMULA_CLOSE_DELAY_MS);
+    }, FORMULA_CLOSE_HOVER_DELAY_MS);
   }
 
   function renderFormulaExplanationMarkup(explanation: ResultsFormulaExplanation): string {

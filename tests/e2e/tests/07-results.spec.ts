@@ -175,7 +175,9 @@ test.describe('results tab', () => {
       await expect(firePlanPage.resultsTab.formulaPanel('totalContributions')).toContainText('בסיס עלות נוכחי');
     }
 
-    await firePlanPage.resultsTab.formulaTrigger('annualWithdrawalNet').click();
+    const isMobileProject = test.info().project.name === 'mobile-chromium';
+
+    await firePlanPage.resultsTab.activateFormulaTrigger('annualWithdrawalNet', isMobileProject);
     await expect(firePlanPage.resultsTab.formulaPanel('annualWithdrawalNet')).toBeVisible();
     await expect(firePlanPage.resultsTab.formulaPanel('annualWithdrawalNet')).toContainText('שיעור משיכה');
     await expect(firePlanPage.resultsTab.formulaPanel('totalContributions')).toBeHidden();
@@ -185,13 +187,13 @@ test.describe('results tab', () => {
     await expect(firePlanPage.resultsTab.formulaPanel('monthlyExpenseNet')).toContainText('הוצאה חודשית');
 
     const peakPanel = firePlanPage.resultsTab.formulaPanel('peakValue');
-    await firePlanPage.resultsTab.formulaTrigger('peakValue').click();
+    await firePlanPage.resultsTab.activateFormulaTrigger('peakValue', isMobileProject);
     await expect(peakPanel).toBeVisible();
     const peakPanelTextBeforeCurrencyChange = await peakPanel.textContent();
 
     await firePlanPage.selectDisplayCurrency('$');
     await firePlanPage.switchToTab('results');
-    await firePlanPage.resultsTab.formulaTrigger('peakValue').click();
+    await firePlanPage.resultsTab.activateFormulaTrigger('peakValue', isMobileProject);
     await expect(peakPanel).toBeVisible();
     const peakPanelTextAfterCurrencyChange = await peakPanel.textContent();
 

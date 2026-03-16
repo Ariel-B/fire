@@ -850,12 +850,12 @@
                                 <div class="bg-white p-4 rounded-lg shadow text-center">
                                     <div class="relative mb-2 flex items-center justify-center gap-2">
                                         <h3 class="text-sm font-medium text-gray-600">סה"כ הפקדות (עד פרישה)</h3>
-                                        <button id="resultsFormulaTriggerTotalContributions" type="button" class="inline-flex h-5 w-5 items-center justify-center rounded-full text-blue-600 transition hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="הצג הסבר נוסחה עבור סך ההפקדות" aria-expanded="false" aria-controls="resultsFormulaPanelTotalContributions" data-formula-trigger="totalContributions">
+                                        <button id="resultsFormulaTriggerTotalContributions" type="button" class="relative z-10 inline-flex h-6 w-6 shrink-0 touch-manipulation items-center justify-center rounded-full text-blue-600 transition hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="הצג הסבר נוסחה עבור סך ההפקדות" aria-expanded="false" aria-controls="resultsFormulaPanelTotalContributions" data-formula-trigger="totalContributions">
                                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                             </svg>
                                         </button>
-                                        <div id="resultsFormulaPanelTotalContributions" class="absolute top-full left-1/2 z-20 mt-2 hidden w-72 max-w-[calc(100vw-3rem)] -translate-x-1/2 rounded-lg border border-gray-200 bg-white p-3 text-right shadow-xl" role="dialog" aria-label="הסבר נוסחה עבור סך ההפקדות" data-formula-panel="totalContributions">
+                                        <div id="resultsFormulaPanelTotalContributions" class="absolute top-full left-1/2 z-20 mt-2 hidden w-72 max-w-[calc(100vw-3rem)] -translate-x-1/2 rounded-lg border border-gray-200 bg-white p-3 text-right shadow-xl" role="dialog" aria-modal="false" aria-label="הסבר נוסחה עבור סך ההפקדות" aria-describedby="resultsFormulaContentTotalContributions" data-formula-panel="totalContributions">
                                             <div id="resultsFormulaContentTotalContributions"></div>
                                         </div>
                                     </div>
@@ -865,12 +865,12 @@
                                 <div class="bg-white p-4 rounded-lg shadow text-center">
                                     <div class="relative mb-2 flex items-center justify-center gap-2">
                                         <h3 class="text-sm font-medium text-gray-600">משיכה שנתית</h3>
-                                        <button id="resultsFormulaTriggerAnnualWithdrawal" type="button" class="inline-flex h-5 w-5 items-center justify-center rounded-full text-green-600 transition hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-500" aria-label="הצג הסבר נוסחה עבור משיכה שנתית" aria-expanded="false" aria-controls="resultsFormulaPanelAnnualWithdrawal" data-formula-trigger="annualWithdrawalNet">
+                                        <button id="resultsFormulaTriggerAnnualWithdrawal" type="button" class="relative z-10 inline-flex h-6 w-6 shrink-0 touch-manipulation items-center justify-center rounded-full text-green-600 transition hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-500" aria-label="הצג הסבר נוסחה עבור משיכה שנתית" aria-expanded="false" aria-controls="resultsFormulaPanelAnnualWithdrawal" data-formula-trigger="annualWithdrawalNet">
                                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                             </svg>
                                         </button>
-                                        <div id="resultsFormulaPanelAnnualWithdrawal" class="absolute top-full left-1/2 z-20 mt-2 hidden w-72 max-w-[calc(100vw-3rem)] -translate-x-1/2 rounded-lg border border-gray-200 bg-white p-3 text-right shadow-xl" role="dialog" aria-label="הסבר נוסחה עבור משיכה שנתית" data-formula-panel="annualWithdrawalNet">
+                                        <div id="resultsFormulaPanelAnnualWithdrawal" class="absolute top-full left-1/2 z-20 mt-2 hidden w-72 max-w-[calc(100vw-3rem)] -translate-x-1/2 rounded-lg border border-gray-200 bg-white p-3 text-right shadow-xl" role="dialog" aria-modal="false" aria-label="הסבר נוסחה עבור משיכה שנתית" aria-describedby="resultsFormulaContentAnnualWithdrawal" data-formula-panel="annualWithdrawalNet">
                                             <div id="resultsFormulaContentAnnualWithdrawal"></div>
                                         </div>
                                     </div>
@@ -880,12 +880,12 @@
                                 <div class="bg-white p-4 rounded-lg shadow text-center">
                                     <div class="relative mb-2 flex items-center justify-center gap-2">
                                         <h3 class="text-sm font-medium text-gray-600">הוצאה חודשית נטו בפרישה</h3>
-                                        <button id="resultsFormulaTriggerMonthlyExpense" type="button" class="inline-flex h-5 w-5 items-center justify-center rounded-full text-purple-600 transition hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-purple-500" aria-label="הצג הסבר נוסחה עבור הוצאה חודשית נטו" aria-expanded="false" aria-controls="resultsFormulaPanelMonthlyExpense" data-formula-trigger="monthlyExpenseNet">
+                                        <button id="resultsFormulaTriggerMonthlyExpense" type="button" class="relative z-10 inline-flex h-6 w-6 shrink-0 touch-manipulation items-center justify-center rounded-full text-purple-600 transition hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-purple-500" aria-label="הצג הסבר נוסחה עבור הוצאה חודשית נטו" aria-expanded="false" aria-controls="resultsFormulaPanelMonthlyExpense" data-formula-trigger="monthlyExpenseNet">
                                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                             </svg>
                                         </button>
-                                        <div id="resultsFormulaPanelMonthlyExpense" class="absolute top-full left-1/2 z-20 mt-2 hidden w-72 max-w-[calc(100vw-3rem)] -translate-x-1/2 rounded-lg border border-gray-200 bg-white p-3 text-right shadow-xl" role="dialog" aria-label="הסבר נוסחה עבור הוצאה חודשית נטו" data-formula-panel="monthlyExpenseNet">
+                                        <div id="resultsFormulaPanelMonthlyExpense" class="absolute top-full left-1/2 z-20 mt-2 hidden w-72 max-w-[calc(100vw-3rem)] -translate-x-1/2 rounded-lg border border-gray-200 bg-white p-3 text-right shadow-xl" role="dialog" aria-modal="false" aria-label="הסבר נוסחה עבור הוצאה חודשית נטו" aria-describedby="resultsFormulaContentMonthlyExpense" data-formula-panel="monthlyExpenseNet">
                                             <div id="resultsFormulaContentMonthlyExpense"></div>
                                         </div>
                                     </div>
@@ -901,12 +901,12 @@
                                     <div class="donut-container">
                                         <div class="relative mb-2 flex items-center justify-center gap-2">
                                             <h4 class="text-sm font-medium">תיק בתחילת צבירה</h4>
-                                            <button id="resultsFormulaTriggerStartValue" type="button" class="inline-flex h-5 w-5 items-center justify-center rounded-full text-blue-600 transition hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="הצג הסבר נוסחה עבור תיק בתחילת צבירה" aria-expanded="false" aria-controls="resultsFormulaPanelStartValue" data-formula-trigger="startValue">
+                                            <button id="resultsFormulaTriggerStartValue" type="button" class="relative z-10 inline-flex h-6 w-6 shrink-0 touch-manipulation items-center justify-center rounded-full text-blue-600 transition hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="הצג הסבר נוסחה עבור תיק בתחילת צבירה" aria-expanded="false" aria-controls="resultsFormulaPanelStartValue" data-formula-trigger="startValue">
                                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                                 </svg>
                                             </button>
-                                            <div id="resultsFormulaPanelStartValue" class="absolute top-full left-1/2 z-20 mt-2 hidden w-72 max-w-[calc(100vw-3rem)] -translate-x-1/2 rounded-lg border border-gray-200 bg-white p-3 text-right shadow-xl" role="dialog" aria-label="הסבר נוסחה עבור תיק בתחילת צבירה" data-formula-panel="startValue">
+                                            <div id="resultsFormulaPanelStartValue" class="absolute top-full left-1/2 z-20 mt-2 hidden w-72 max-w-[calc(100vw-3rem)] -translate-x-1/2 rounded-lg border border-gray-200 bg-white p-3 text-right shadow-xl" role="dialog" aria-modal="false" aria-label="הסבר נוסחה עבור תיק בתחילת צבירה" aria-describedby="resultsFormulaContentStartValue" data-formula-panel="startValue">
                                                 <div id="resultsFormulaContentStartValue"></div>
                                             </div>
                                         </div>
@@ -919,12 +919,12 @@
                                     <div class="donut-container">
                                         <div class="relative mb-2 flex items-center justify-center gap-2">
                                             <h4 class="text-sm font-medium">תיק לפני הפרישה</h4>
-                                            <button id="resultsFormulaTriggerPeakValue" type="button" class="inline-flex h-5 w-5 items-center justify-center rounded-full text-green-600 transition hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-500" aria-label="הצג הסבר נוסחה עבור תיק לפני הפרישה" aria-expanded="false" aria-controls="resultsFormulaPanelPeakValue" data-formula-trigger="peakValue">
+                                            <button id="resultsFormulaTriggerPeakValue" type="button" class="relative z-10 inline-flex h-6 w-6 shrink-0 touch-manipulation items-center justify-center rounded-full text-green-600 transition hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-500" aria-label="הצג הסבר נוסחה עבור תיק לפני הפרישה" aria-expanded="false" aria-controls="resultsFormulaPanelPeakValue" data-formula-trigger="peakValue">
                                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                                 </svg>
                                             </button>
-                                            <div id="resultsFormulaPanelPeakValue" class="absolute top-full left-1/2 z-20 mt-2 hidden w-72 max-w-[calc(100vw-3rem)] -translate-x-1/2 rounded-lg border border-gray-200 bg-white p-3 text-right shadow-xl" role="dialog" aria-label="הסבר נוסחה עבור תיק לפני הפרישה" data-formula-panel="peakValue">
+                                            <div id="resultsFormulaPanelPeakValue" class="absolute top-full left-1/2 z-20 mt-2 hidden w-72 max-w-[calc(100vw-3rem)] -translate-x-1/2 rounded-lg border border-gray-200 bg-white p-3 text-right shadow-xl" role="dialog" aria-modal="false" aria-label="הסבר נוסחה עבור תיק לפני הפרישה" aria-describedby="resultsFormulaContentPeakValue" data-formula-panel="peakValue">
                                                 <div id="resultsFormulaContentPeakValue"></div>
                                             </div>
                                         </div>
@@ -938,12 +938,12 @@
                                     <div class="donut-container">
                                         <div class="relative mb-2 flex items-center justify-center gap-2">
                                             <h4 class="text-sm font-medium">תיק בסוף פרישה</h4>
-                                            <button id="resultsFormulaTriggerEndValue" type="button" class="inline-flex h-5 w-5 items-center justify-center rounded-full text-purple-600 transition hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-purple-500" aria-label="הצג הסבר נוסחה עבור תיק בסוף פרישה" aria-expanded="false" aria-controls="resultsFormulaPanelEndValue" data-formula-trigger="endValue">
+                                            <button id="resultsFormulaTriggerEndValue" type="button" class="relative z-10 inline-flex h-6 w-6 shrink-0 touch-manipulation items-center justify-center rounded-full text-purple-600 transition hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-purple-500" aria-label="הצג הסבר נוסחה עבור תיק בסוף פרישה" aria-expanded="false" aria-controls="resultsFormulaPanelEndValue" data-formula-trigger="endValue">
                                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                                 </svg>
                                             </button>
-                                            <div id="resultsFormulaPanelEndValue" class="absolute top-full left-1/2 z-20 mt-2 hidden w-72 max-w-[calc(100vw-3rem)] -translate-x-1/2 rounded-lg border border-gray-200 bg-white p-3 text-right shadow-xl" role="dialog" aria-label="הסבר נוסחה עבור תיק בסוף פרישה" data-formula-panel="endValue">
+                                            <div id="resultsFormulaPanelEndValue" class="absolute top-full left-1/2 z-20 mt-2 hidden w-72 max-w-[calc(100vw-3rem)] -translate-x-1/2 rounded-lg border border-gray-200 bg-white p-3 text-right shadow-xl" role="dialog" aria-modal="false" aria-label="הסבר נוסחה עבור תיק בסוף פרישה" aria-describedby="resultsFormulaContentEndValue" data-formula-panel="endValue">
                                                 <div id="resultsFormulaContentEndValue"></div>
                                             </div>
                                         </div>
