@@ -36,4 +36,12 @@ export class ResultsTab {
     this.panRightButton = page.locator('#panRightBtn');
     this.copyChartButton = page.locator('#copyMainChartBtn');
   }
+
+  formulaTrigger(key: string): Locator {
+    return this.page.locator(`[data-formula-trigger="${key}"]`);
+  }
+
+  formulaPanel(key: string): Locator {
+    return this.page.locator(`[data-formula-panel="${key}"]`);
+  }
 }

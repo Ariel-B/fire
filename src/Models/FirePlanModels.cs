@@ -311,12 +311,116 @@ namespace FirePlanningTool.Models
     /// <summary>
     /// Complete calculation results for a FIRE plan including portfolio projections, withdrawals, taxes, and RSU data.
     /// </summary>
+    public class ResultsFormulaMetadata
+    {
+        /// <summary>
+        /// Inputs for explaining the total-contributions card.
+        /// </summary>
+        public TotalContributionsFormulaMetadata TotalContributions { get; set; } = new();
+
+        /// <summary>
+        /// Inputs for explaining annual withdrawal and monthly expense cards.
+        /// </summary>
+        public AnnualWithdrawalFormulaMetadata AnnualWithdrawal { get; set; } = new();
+
+        /// <summary>
+        /// Inputs for explaining the peak-value card when retirement rebalancing applies.
+        /// </summary>
+        public PeakValueFormulaMetadata PeakValue { get; set; } = new();
+    }
+
+    /// <summary>
+    /// Explanation inputs for the total contributions result card.
+    /// </summary>
+    public class TotalContributionsFormulaMetadata
+    {
+        /// <summary>
+        /// Current portfolio cost basis before any future accumulation contributions.
+        /// </summary>
+        public decimal CurrentCostBasis { get; set; }
+
+        /// <summary>
+        /// Contributions added during the modeled accumulation phase.
+        /// </summary>
+        public decimal AccumulationContributions { get; set; }
+
+        /// <summary>
+        /// Computed total contributions before any manual tax-basis override.
+        /// </summary>
+        public decimal ComputedTotalContributions { get; set; }
+
+        /// <summary>
+        /// Whether the user supplied a manual tax basis override.
+        /// </summary>
+        public bool UsesManualTaxBasis { get; set; }
+
+        /// <summary>
+        /// Manual tax basis used for the displayed result when provided.
+        /// </summary>
+        public decimal? ManualTaxBasis { get; set; }
+    }
+
+    /// <summary>
+    /// Explanation inputs for annual withdrawal and derived monthly expense cards.
+    /// </summary>
+    public class AnnualWithdrawalFormulaMetadata
+    {
+        /// <summary>
+        /// Portfolio value used as the withdrawal base.
+        /// </summary>
+        public decimal PeakValueForWithdrawal { get; set; }
+
+        /// <summary>
+        /// Withdrawal rate percentage.
+        /// </summary>
+        public decimal WithdrawalRate { get; set; }
+
+        /// <summary>
+        /// Effective tax rate percentage applied to gross withdrawals.
+        /// </summary>
+        public decimal EffectiveTaxRate { get; set; }
+    }
+
+    /// <summary>
+    /// Explanation inputs for the peak-value card.
+    /// </summary>
+    public class PeakValueFormulaMetadata
+    {
+        /// <summary>
+        /// Whether the plan switches to a retirement portfolio at retirement.
+        /// </summary>
+        public bool UsesRetirementPortfolio { get; set; }
+
+        /// <summary>
+        /// Whether the displayed card value is the gross pre-tax peak value.
+        /// </summary>
+        public bool DisplayedValueIsGross { get; set; }
+
+        /// <summary>
+        /// Tax-adjusted peak portfolio value after retirement rebalancing tax.
+        /// </summary>
+        public decimal TaxAdjustedPeakValue { get; set; }
+
+        /// <summary>
+        /// One-time retirement rebalancing tax.
+        /// </summary>
+        public decimal RetirementTaxToPay { get; set; }
+    }
+
+    /// <summary>
+    /// Complete calculation results for a FIRE plan including portfolio projections, withdrawals, taxes, and explainability metadata.
+    /// </summary>
     public class FireCalculationResult
     {
         /// <summary>
         /// Total amount contributed to the portfolio over the entire accumulation phase.
         /// </summary>
         public decimal TotalContributions { get; set; }
+
+        /// <summary>
+        /// Contributions added during the modeled accumulation phase (excluding current cost basis).
+        /// </summary>
+        public decimal TotalMonthlyContributions { get; set; }
 
         /// <summary>
         /// Portfolio value at early retirement (after retirement rebalancing tax if applicable).
@@ -344,6 +448,16 @@ namespace FirePlanningTool.Models
         public decimal GrossAnnualWithdrawal { get; set; }
 
         /// <summary>
+        /// Net annual withdrawal amount (after taxes) at start of retirement.
+        /// </summary>
+        public decimal NetAnnualWithdrawal { get; set; }
+
+        /// <summary>
+        /// Gross monthly expense amount (before taxes) at start of retirement.
+        /// </summary>
+        public decimal GrossMonthlyExpense { get; set; }
+
+        /// <summary>
         /// Net monthly expense amount (after taxes) at start of retirement.
         /// </summary>
         public decimal NetMonthlyExpense { get; set; }
@@ -367,6 +481,11 @@ namespace FirePlanningTool.Models
         /// Current portfolio value at the start of calculations.
         /// </summary>
         public decimal CurrentValue { get; set; }
+
+        /// <summary>
+        /// Current portfolio cost basis at the start of calculations.
+        /// </summary>
+        public decimal CurrentCostBasis { get; set; }
 
         /// <summary>
         /// Percentage-based allocation strategy for accumulation phase.
@@ -418,6 +537,11 @@ namespace FirePlanningTool.Models
         /// Calculated as EarlyRetirementYear - BirthYear.
         /// </summary>
         public int FireAgeReached { get; set; }
+
+        /// <summary>
+        /// Formula inputs for results-card explainability panels.
+        /// </summary>
+        public ResultsFormulaMetadata FormulaMetadata { get; set; } = new();
     }
 
     /// <summary>

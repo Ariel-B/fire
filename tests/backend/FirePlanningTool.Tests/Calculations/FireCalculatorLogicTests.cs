@@ -343,6 +343,58 @@ namespace FirePlanningTool.Tests.Calculations
         }
 
         [Fact]
+        public void Calculate_PopulatesExplainabilityMetadataForResultsCards()
+        {
+            var input = CreateValidFirePlanInput();
+            input.EarlyRetirementYear = DateTime.Now.Year;
+            input.WithdrawalRate = 4m;
+            input.CapitalGainsTax = 25m;
+            input.MonthlyContribution = Money.Usd(0);
+            input.TaxBasis = 50000m;
+            input.UseRetirementPortfolio = true;
+            input.RetirementAllocation = new List<PortfolioAllocation>
+            {
+                new()
+                {
+                    AssetType = "Bonds",
+                    TargetPercentage = 100,
+                    ExpectedAnnualReturn = 3
+                }
+            };
+
+            input.AccumulationPortfolio = new List<PortfolioAsset>
+            {
+                new()
+                {
+                    Symbol = "VTI",
+                    Quantity = 100,
+                    CurrentPrice = Money.Usd(1000),
+                    AverageCost = Money.Usd(600),
+                    Method = "CAGR",
+                    Value1 = 7
+                }
+            };
+
+            var result = _fireCalculator.Calculate(input);
+
+            result.CurrentCostBasis.Should().Be(60000m);
+            result.TotalMonthlyContributions.Should().Be(0m);
+            result.NetAnnualWithdrawal.Should().Be(3500m);
+            result.GrossMonthlyExpense.Should().BeApproximately(291.67m, 0.01m);
+
+            result.FormulaMetadata.Should().NotBeNull();
+            result.FormulaMetadata.TotalContributions.UsesManualTaxBasis.Should().BeTrue();
+            result.FormulaMetadata.TotalContributions.ManualTaxBasis.Should().Be(50000m);
+            result.FormulaMetadata.TotalContributions.ComputedTotalContributions.Should().Be(60000m);
+            result.FormulaMetadata.AnnualWithdrawal.WithdrawalRate.Should().Be(4m);
+            result.FormulaMetadata.AnnualWithdrawal.PeakValueForWithdrawal.Should().Be(87500m);
+            result.FormulaMetadata.AnnualWithdrawal.EffectiveTaxRate.Should().Be(0m);
+            result.FormulaMetadata.PeakValue.DisplayedValueIsGross.Should().BeTrue();
+            result.FormulaMetadata.PeakValue.TaxAdjustedPeakValue.Should().Be(87500m);
+            result.FormulaMetadata.PeakValue.RetirementTaxToPay.Should().Be(12500m);
+        }
+
+        [Fact]
         public void Calculate_PortfolioWithMultipleAssets_AggregatesCostBasisCorrectly()
         {
             var input = CreateValidFirePlanInput();
@@ -1060,4 +1112,3 @@ namespace FirePlanningTool.Tests.Calculations
         #endregion
     }
 }
-

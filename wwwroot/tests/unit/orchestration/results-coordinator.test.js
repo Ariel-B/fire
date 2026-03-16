@@ -116,6 +116,26 @@ function createResult(overrides = {}) {
     grossAnnualWithdrawal: 52000,
     netMonthlyExpense: 4000,
     grossMonthlyExpense: 4300,
+    formulaMetadata: {
+      totalContributions: {
+        currentCostBasis: 75000,
+        accumulationContributions: 25000,
+        computedTotalContributions: 100000,
+        usesManualTaxBasis: false,
+        manualTaxBasis: null
+      },
+      annualWithdrawal: {
+        peakValueForWithdrawal: 300000,
+        withdrawalRate: 4,
+        effectiveTaxRate: 7.6923
+      },
+      peakValue: {
+        displayedValueIsGross: true,
+        usesRetirementPortfolio: true,
+        taxAdjustedPeakValue: 300000,
+        retirementTaxToPay: 30000
+      }
+    },
     preRetirementPortfolio: [{ symbol: 'VTI', value: 150000, percentage: 100 }],
     retirementPortfolio: [{ symbol: 'Bonds', value: 200000, percentage: 100 }],
     yearlyData: [
@@ -127,6 +147,74 @@ function createResult(overrides = {}) {
 }
 
 describe('results coordinator', () => {
+  test('builds formula explanations with converted values and conditional notes', () => {
+    const { buildResultsFormulaExplanations } = loadModule();
+
+    const explanations = buildResultsFormulaExplanations({
+      result: createResult({
+        totalContributions: 50000,
+        currentCostBasis: 60000,
+        totalMonthlyContributions: 0,
+        peakValue: 87500,
+        grossPeakValue: 100000,
+        retirementTaxToPay: 12500,
+        netAnnualWithdrawal: 3500,
+        grossAnnualWithdrawal: 3500,
+        netMonthlyExpense: 291.6667,
+        grossMonthlyExpense: 291.6667,
+        currentValue: 100000,
+        yearlyData: [
+          { year: 2045, portfolioValue: 100000 },
+          { year: 2055, portfolioValue: 60000 }
+        ],
+        formulaMetadata: {
+          totalContributions: {
+            currentCostBasis: 60000,
+            accumulationContributions: 0,
+            computedTotalContributions: 60000,
+            usesManualTaxBasis: true,
+            manualTaxBasis: 50000
+          },
+          annualWithdrawal: {
+            peakValueForWithdrawal: 87500,
+            withdrawalRate: 4,
+            effectiveTaxRate: 0
+          },
+          peakValue: {
+            displayedValueIsGross: true,
+            usesRetirementPortfolio: true,
+            taxAdjustedPeakValue: 87500,
+            retirementTaxToPay: 12500
+          }
+        }
+      }),
+      displayCurrency: '₪',
+      usdIlsRate: 4,
+      useRetirementPortfolio: true,
+      convertFromUSD: (value, currency) => currency === '₪' ? value * 4 : value,
+      formatCurrency: (value, currency) => `${currency}${value.toFixed(2)}`
+    });
+
+    expect(Object.keys(explanations)).toEqual([
+      'totalContributions',
+      'annualWithdrawalNet',
+      'monthlyExpenseNet',
+      'startValue',
+      'peakValue',
+      'endValue'
+    ]);
+    expect(explanations.totalContributions.variables).toEqual([
+      { label: 'בסיס עלות נוכחי', value: '₪240000.00' },
+      { label: 'הפקדות בתקופת הצבירה', value: '₪0.00' },
+      { label: 'סה"כ הפקדות מחושב', value: '₪240000.00' },
+      { label: 'בסיס מס ידני בשימוש', value: '₪200000.00' }
+    ]);
+    expect(explanations.totalContributions.notes).toContain('הערה: הוזן בסיס מס ידני ולכן הערך המוצג מבוסס עליו במקום הסכום המחושב.');
+    expect(explanations.peakValue.notes).toContain('הערה: בעת המעבר לתיק פרישה מחושב גם מס איזון חד-פעמי, ולכן מוצגים גם הערך ברוטו וגם הערך לאחר מס.');
+    expect(explanations.annualWithdrawalNet.variables).toContainEqual({ label: 'שיעור מס אפקטיבי', value: '0.00%' });
+    expect(explanations.endValue.variables).toContainEqual({ label: 'שווי סופי', value: '₪240000.00' });
+  });
+
   test('displays summary cards, contribution breakdown, and retirement tax messaging', () => {
     const { createResultsCoordinator } = loadModule();
     const dependencies = createDependencies();

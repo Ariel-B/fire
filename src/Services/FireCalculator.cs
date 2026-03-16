@@ -120,6 +120,7 @@ namespace FirePlanningTool.Services
 
             var peakValue = accumulationResult.EndPortfolioValue;
             var actualContributions = accumulationResult.ActualContributions;
+            var computedTotalContributions = currentCostBasis + actualContributions;
 
             // For SellAtRetirement strategy, add retirement-year RSU proceeds to peak value
             // since these shares will be liquidated at retirement and add to available funds
@@ -137,7 +138,7 @@ namespace FirePlanningTool.Services
             var grossPeakValue = peakValue;
 
             // Calculate cost basis for tax calculations
-            var totalContributions = input.TaxBasis.HasValue ? input.TaxBasis.Value : (currentCostBasis + actualContributions);
+            var totalContributions = input.TaxBasis.HasValue ? input.TaxBasis.Value : computedTotalContributions;
             var originalTotalContributions = totalContributions;
 
             // Calculate retirement tax if switching portfolios
@@ -159,6 +160,7 @@ namespace FirePlanningTool.Services
             var initialGrossAnnualWithdrawal = peakValue * input.WithdrawalRate / 100;
             var effectiveTaxRate = _taxCalculator.CalculateEffectiveTaxRate(profitRatio, input.CapitalGainsTax);
             var initialAnnualWithdrawal = initialGrossAnnualWithdrawal * (1 - effectiveTaxRate);
+            var initialGrossMonthlyExpense = initialGrossAnnualWithdrawal / 12;
             var initialMonthlyNet = initialAnnualWithdrawal / 12;
 
             // Convert pension to USD for calculations
@@ -199,16 +201,20 @@ namespace FirePlanningTool.Services
             return new FireCalculationResult
             {
                 TotalContributions = originalTotalContributions,
+                TotalMonthlyContributions = actualContributions,
                 PeakValue = peakValue,
                 GrossPeakValue = grossPeakValue,
                 RetirementTaxToPay = retirementTaxToPay,
                 EndValue = Math.Max(0, retirementResult.EndPortfolioValue),
                 GrossAnnualWithdrawal = initialGrossAnnualWithdrawal,
+                NetAnnualWithdrawal = initialAnnualWithdrawal,
+                GrossMonthlyExpense = initialGrossMonthlyExpense,
                 NetMonthlyExpense = initialMonthlyNet,
                 YearlyData = allYearlyData,
                 AccumulationPortfolio = input.AccumulationPortfolio,
                 RetirementPortfolio = input.RetirementPortfolio,
                 CurrentValue = currentPortfolioValue,
+                CurrentCostBasis = currentCostBasis,
                 AccumulationAllocation = input.AccumulationAllocation,
                 RetirementAllocation = input.RetirementAllocation,
                 AccumulationWeightedReturn = accumulationReturn,
@@ -218,7 +224,31 @@ namespace FirePlanningTool.Services
                 TotalRsuNetProceeds = totalRsuNetProceeds,
                 TotalRsuTaxesPaid = totalRsuTaxesPaid,
                 RsuSummary = rsuSummary,
-                FireAgeReached = input.EarlyRetirementYear - input.BirthYear
+                FireAgeReached = input.EarlyRetirementYear - input.BirthYear,
+                FormulaMetadata = new ResultsFormulaMetadata
+                {
+                    TotalContributions = new TotalContributionsFormulaMetadata
+                    {
+                        CurrentCostBasis = currentCostBasis,
+                        AccumulationContributions = actualContributions,
+                        ComputedTotalContributions = computedTotalContributions,
+                        UsesManualTaxBasis = input.TaxBasis.HasValue,
+                        ManualTaxBasis = input.TaxBasis
+                    },
+                    AnnualWithdrawal = new AnnualWithdrawalFormulaMetadata
+                    {
+                        PeakValueForWithdrawal = peakValue,
+                        WithdrawalRate = input.WithdrawalRate,
+                        EffectiveTaxRate = effectiveTaxRate * 100
+                    },
+                    PeakValue = new PeakValueFormulaMetadata
+                    {
+                        UsesRetirementPortfolio = useRetirementPortfolio,
+                        DisplayedValueIsGross = useRetirementPortfolio,
+                        TaxAdjustedPeakValue = peakValue,
+                        RetirementTaxToPay = retirementTaxToPay
+                    }
+                }
             };
         }
 
