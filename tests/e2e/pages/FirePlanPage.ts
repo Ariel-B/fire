@@ -65,6 +65,32 @@ export class FirePlanPage {
       .not.toBe('₪0');
   }
 
+  async savePlanAsWithPassword(password: string): Promise<void> {
+    await this.page.locator('#savePlanAs').click();
+    await expect(this.page.locator('#password-dialog')).toBeVisible();
+    await this.page.locator('#password-input').fill(password);
+    await this.page.locator('#password-confirm-input').fill(password);
+    await this.page.locator('#password-submit').click();
+  }
+
+  async savePlanWithPassword(password: string): Promise<void> {
+    await this.page.locator('#savePlan').click();
+    await expect(this.page.locator('#password-dialog')).toBeVisible();
+    await this.page.locator('#password-input').fill(password);
+    await this.page.locator('#password-confirm-input').fill(password);
+    await this.page.locator('#password-submit').click();
+  }
+
+  async loadPlanWithPassword(path: string, password: string): Promise<void> {
+    const fileChooserPromise = this.page.waitForEvent('filechooser');
+    await this.page.locator('#loadPlan').click();
+    const fileChooser = await fileChooserPromise;
+    await fileChooser.setFiles(path);
+    await expect(this.page.locator('#password-dialog')).toBeVisible();
+    await this.page.locator('#password-input').fill(password);
+    await this.page.locator('#password-submit').click();
+  }
+
   async selectDisplayCurrency(currency: '$' | '₪'): Promise<void> {
     await this.page.getByTestId('display-currency-menu').click();
     await this.page.locator(currency === '$' ? '#currencyUSD' : '#currencyILS').click();

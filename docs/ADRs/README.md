@@ -37,6 +37,7 @@ Each ADR follows a standard format:
 - [ADR-011: Health Checks for Deployment](./ADR-011-health-checks.md) - Accepted
 - [ADR-012: FluentValidation for Input Validation](./ADR-012-fluent-validation.md) - Accepted
 - [ADR-016: Security Headers Middleware](./ADR-016-security-headers.md) - Accepted
+- [ADR-023: Encrypt Saved Plan Files with Web Crypto AES-256-GCM](./ADR-023-encrypted-saved-plan-files.md) - Accepted
 
 ### Domain Decisions
 - [ADR-013: USD as Base Currency with Display Conversion](./ADR-013-usd-base-currency.md) - Accepted

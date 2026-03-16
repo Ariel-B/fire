@@ -10,12 +10,14 @@ import type {
 import { Money } from '../types/index.js';
 import { getElement, setInputValue } from '../utils/dom.js';
 import { exportToExcel } from '../api/export-api.js';
+import { decryptPlan, encryptPlan, isEncryptedPlan } from '../crypto/plan-crypto.js';
 import {
   createPortfolioAsset,
   fetchCAGRsForPortfolio,
   fetchMarketCapsForPortfolio,
   fetchPricesForPortfolio
 } from '../components/portfolio-table.js';
+import { promptPassword } from '../components/password-dialog.js';
 import { loadRsuFromFileData, setRsuIncludeInCalculations } from '../services/rsu-state.js';
 import { switchTab } from '../app-shell.js';
 
@@ -339,12 +341,78 @@ export function createPlanPersistence(dependencies: PlanPersistenceDependencies)
     version: '2.0'
   });
 
+  const buildEncryptedFileName = () => `fire-plan-${new Date().toISOString().slice(0, 10)}.enc.json`;
+
+  async function buildEncryptedPlanPayload(): Promise<{ fileName: string; jsonString: string } | null> {
+    const password = await promptPassword('encrypt');
+    if (password === null) {
+      return null;
+    }
+
+    const jsonString = JSON.stringify(buildPlanData(), null, 2);
+    const encryptedEnvelope = await encryptPlan(jsonString, password);
+
+    return {
+      fileName: buildEncryptedFileName(),
+      jsonString: JSON.stringify(encryptedEnvelope, null, 2)
+    };
+  }
+
+  function isOperationError(error: unknown): boolean {
+    return typeof error === 'object' &&
+      error !== null &&
+      'name' in error &&
+      (error as { name?: unknown }).name === 'OperationError';
+  }
+
+  function isMarkedEncryptedEnvelope(data: unknown): boolean {
+    return typeof data === 'object' &&
+      data !== null &&
+      'encrypted' in data &&
+      (data as { encrypted?: unknown }).encrypted === true;
+  }
+
+  async function parseLoadedPlan(text: string): Promise<unknown | null> {
+    const rawData = JSON.parse(text);
+    if (!isEncryptedPlan(rawData)) {
+      if (isMarkedEncryptedEnvelope(rawData)) {
+        throw new Error('פורמט קובץ מוצפן לא נתמך');
+      }
+
+      return rawData;
+    }
+
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const password = await promptPassword('decrypt');
+      if (password === null) {
+        return null;
+      }
+
+      try {
+        const decrypted = await decryptPlan(rawData, password);
+        return JSON.parse(decrypted);
+      } catch (error) {
+        if (isOperationError(error)) {
+          alert('סיסמה שגויה');
+          continue;
+        }
+
+        throw error;
+      }
+    }
+
+    return null;
+  }
+
   async function savePlan(): Promise<void> {
     try {
-      const jsonString = JSON.stringify(buildPlanData(), null, 2);
-
       if (state.currentFileHandle && supportsNativeSavePicker()) {
-        await saveToFileHandle(state.currentFileHandle, jsonString);
+        const encryptedPayload = await buildEncryptedPlanPayload();
+        if (!encryptedPayload) {
+          return;
+        }
+
+        await saveToFileHandle(state.currentFileHandle, encryptedPayload.jsonString);
       } else {
         await savePlanAs();
       }
@@ -356,15 +424,17 @@ export function createPlanPersistence(dependencies: PlanPersistenceDependencies)
 
   async function savePlanAs(): Promise<void> {
     try {
-      const jsonString = JSON.stringify(buildPlanData(), null, 2);
-      const fileName = `fire-plan-${new Date().toISOString().slice(0, 10)}.json`;
+      const encryptedPayload = await buildEncryptedPlanPayload();
+      if (!encryptedPayload) {
+        return;
+      }
 
       if (supportsNativeSavePicker()) {
-        const fileHandle = await saveWithFilePicker(jsonString, fileName);
+        const fileHandle = await saveWithFilePicker(encryptedPayload.jsonString, encryptedPayload.fileName);
         state.currentFileHandle = fileHandle;
         state.currentFileName = fileHandle.name;
       } else {
-        triggerDownloadFallback(jsonString, fileName);
+        triggerDownloadFallback(encryptedPayload.jsonString, encryptedPayload.fileName);
       }
     } catch (error) {
       console.error('Failed to save plan:', error);
@@ -416,7 +486,11 @@ export function createPlanPersistence(dependencies: PlanPersistenceDependencies)
   async function processLoadedFile(file: File): Promise<void> {
     try {
       const text = await file.text();
-      const rawData = JSON.parse(text);
+      const rawData = await parseLoadedPlan(text);
+      if (rawData === null) {
+        return;
+      }
+
       await loadPlanFromData(rawData);
     } catch (error) {
       console.error('Failed to load plan:', error);
