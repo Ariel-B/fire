@@ -138,7 +138,7 @@ test.describe('results tab', () => {
     });
   });
 
-  test('uses the full plan range when the simulation is shorter than 30 years', async ({ firePlanPage }) => {
+  test('defaults to the full-range viewport for plans shorter than 30 years', async ({ firePlanPage }) => {
     const shortPlan = cloneDemoPlan<Record<string, unknown>>();
     const shortPlanBirthYear = new Date().getFullYear() - 86;
 

@@ -222,7 +222,7 @@ function syncChartAgeAxis(chart: any): void {
   chart.update('none');
 }
 
-function getDefaultMainChartViewport(totalYears: number): { minIndex: number; maxIndex: number } {
+function calculateDefaultMainChartViewport(totalYears: number): { minIndex: number; maxIndex: number } {
   return {
     minIndex: 0,
     maxIndex: Math.min(totalYears - 1, DEFAULT_MAIN_CHART_FUTURE_YEARS)
@@ -898,7 +898,7 @@ export function updateMainChart(
   const minAge = chartData.yearlyData[0]?.age || 0;
   const maxAge = chartData.yearlyData[chartData.yearlyData.length - 1]?.age || 100;
   const totalYears = chartData.yearlyData.length;
-  const defaultViewport = getDefaultMainChartViewport(totalYears);
+  const defaultViewport = calculateDefaultMainChartViewport(totalYears);
   const defaultMinLabel = labels[defaultViewport.minIndex];
   const defaultMaxLabel = labels[defaultViewport.maxIndex];
   const defaultMinAge = chartData.yearlyData[defaultViewport.minIndex]?.age || minAge;
