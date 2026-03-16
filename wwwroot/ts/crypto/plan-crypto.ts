@@ -3,7 +3,7 @@ export interface EncryptedEnvelope {
   version: '1.0';
   algorithm: 'AES-256-GCM';
   kdf: 'PBKDF2';
-  kdfIterations: 600000;
+  kdfIterations: number;
   salt: string;
   iv: string;
   data: string;
@@ -13,6 +13,8 @@ const ENVELOPE_VERSION = '1.0' as const;
 const ALGORITHM = 'AES-256-GCM' as const;
 const KDF = 'PBKDF2' as const;
 const KDF_ITERATIONS = 600000 as const;
+const MIN_KDF_ITERATIONS = 100000;
+const MAX_KDF_ITERATIONS = 2000000;
 const SALT_LENGTH = 16;
 const IV_LENGTH = 12;
 const KEY_LENGTH = 256;
@@ -37,11 +39,13 @@ function getCryptoApi(): Crypto {
 
 function bytesToBase64(bytes: Uint8Array): string {
   if (typeof btoa === 'function') {
-    let binary = '';
-    bytes.forEach((byte) => {
-      binary += String.fromCharCode(byte);
-    });
-    return btoa(binary);
+    const chunkSize = 0x8000;
+    const chunks: string[] = [];
+    for (let index = 0; index < bytes.length; index += chunkSize) {
+      const chunk = bytes.subarray(index, index + chunkSize);
+      chunks.push(String.fromCharCode(...chunk));
+    }
+    return btoa(chunks.join(''));
   }
 
   const buffer = (globalThis as GlobalWithBuffer).Buffer;
@@ -50,6 +54,20 @@ function bytesToBase64(bytes: Uint8Array): string {
   }
 
   throw new Error('Base64 encoding is not available');
+}
+
+function isSupportedKdfIterations(value: unknown): value is number {
+  return Number.isSafeInteger(value) &&
+    Number(value) >= MIN_KDF_ITERATIONS &&
+    Number(value) <= MAX_KDF_ITERATIONS;
+}
+
+function getValidatedKdfIterations(value: unknown): number {
+  if (!isSupportedKdfIterations(value)) {
+    throw new Error('Unsupported PBKDF2 iteration count');
+  }
+
+  return value;
 }
 
 function base64ToBytes(base64: string): Uint8Array {
@@ -70,7 +88,12 @@ function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {
   return Uint8Array.from(bytes).buffer as ArrayBuffer;
 }
 
-async function deriveAesKey(password: string, salt: Uint8Array, usages: KeyUsage[]): Promise<CryptoKey> {
+async function deriveAesKey(
+  password: string,
+  salt: Uint8Array,
+  iterations: number,
+  usages: KeyUsage[]
+): Promise<CryptoKey> {
   const cryptoApi = getCryptoApi();
   const encodedPassword = new TextEncoder().encode(password);
   const passwordKey = await cryptoApi.subtle.importKey(
@@ -85,7 +108,7 @@ async function deriveAesKey(password: string, salt: Uint8Array, usages: KeyUsage
     {
       name: 'PBKDF2',
       salt: toArrayBuffer(salt),
-      iterations: KDF_ITERATIONS,
+      iterations: getValidatedKdfIterations(iterations),
       hash: 'SHA-256'
     },
     passwordKey,
@@ -102,7 +125,7 @@ export async function encryptPlan(plaintext: string, password: string): Promise<
   const cryptoApi = getCryptoApi();
   const salt = cryptoApi.getRandomValues(new Uint8Array(SALT_LENGTH));
   const iv = cryptoApi.getRandomValues(new Uint8Array(IV_LENGTH));
-  const key = await deriveAesKey(password, salt, ['encrypt']);
+  const key = await deriveAesKey(password, salt, KDF_ITERATIONS, ['encrypt']);
   const encodedPlaintext = new TextEncoder().encode(plaintext);
   const encrypted = await cryptoApi.subtle.encrypt(
     {
@@ -130,7 +153,7 @@ export async function decryptPlan(envelope: EncryptedEnvelope, password: string)
   const salt = base64ToBytes(envelope.salt);
   const iv = base64ToBytes(envelope.iv);
   const ciphertext = base64ToBytes(envelope.data);
-  const key = await deriveAesKey(password, salt, ['decrypt']);
+  const key = await deriveAesKey(password, salt, envelope.kdfIterations, ['decrypt']);
   const decrypted = await cryptoApi.subtle.decrypt(
     {
       name: 'AES-GCM',
@@ -154,7 +177,7 @@ export function isEncryptedPlan(data: unknown): data is EncryptedEnvelope {
     envelope.version === ENVELOPE_VERSION &&
     envelope.algorithm === ALGORITHM &&
     envelope.kdf === KDF &&
-    envelope.kdfIterations === KDF_ITERATIONS &&
+    isSupportedKdfIterations(envelope.kdfIterations) &&
     typeof envelope.salt === 'string' &&
     typeof envelope.iv === 'string' &&
     typeof envelope.data === 'string';

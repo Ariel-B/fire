@@ -175,4 +175,41 @@ describe('File I/O critical path', () => {
     expect(harness.getElement('birthYear').value).toBe('1992');
     expect(harness.getElement('earlyRetirementAge').value).toBe('55');
   });
+
+  test('loadPlan shows a clear error for unsupported encrypted envelopes instead of treating them as legacy plans', async () => {
+    const harness = createAppTestHarness();
+    const loadedFile = {
+      name: 'encrypted-plan.json',
+      text: async () => JSON.stringify({
+        encrypted: true,
+        version: '9.9',
+        algorithm: 'AES-256-GCM',
+        kdf: 'PBKDF2',
+        kdfIterations: 9000000,
+        salt: 'salt',
+        iv: 'iv',
+        data: 'cipher'
+      })
+    };
+    const fileHandle = {
+      name: loadedFile.name,
+      getFile: jest.fn(async () => loadedFile)
+    };
+    global.window.showSaveFilePicker = jest.fn();
+    global.window.showOpenFilePicker = jest.fn(async () => [fileHandle]);
+
+    const { appModule, mocks } = loadAppModule(harness, {
+      planCrypto: {
+        isEncryptedPlan: jest.fn(() => false)
+      }
+    });
+    const initialBirthYear = harness.getElement('birthYear').value;
+
+    await appModule.loadPlan();
+
+    expect(mocks.planCrypto.isEncryptedPlan).toHaveBeenCalled();
+    expect(mocks.passwordDialog.promptPassword).not.toHaveBeenCalled();
+    expect(global.alert).toHaveBeenCalledWith(expect.stringContaining('פורמט קובץ מוצפן לא נתמך'));
+    expect(harness.getElement('birthYear').value).toBe(initialBirthYear);
+  });
 });

@@ -35,7 +35,9 @@ class MockElement {
       return true;
     };
     this.click = () => this.dispatchEvent({ type: 'click', preventDefault() {}, stopPropagation() {} });
-    this.focus = jest.fn();
+    this.focus = jest.fn(() => {
+      this.ownerDocument.activeElement = this;
+    });
     this.select = jest.fn();
     this.contains = (node) => node === this || this.children.some((child) => child.contains?.(node) || child === node);
     this.appendChild = (child) => {
@@ -95,7 +97,9 @@ function createMockDocument() {
   const documentListeners = new Map();
   const document = {
     elements: new Map(),
+    activeElement: null,
     body: null,
+    documentElement: null,
     createElement(tagName) {
       return new MockElement(tagName, document);
     },
@@ -118,6 +122,7 @@ function createMockDocument() {
   };
 
   document.body = new MockElement('body', document);
+  document.documentElement = new MockElement('html', document);
 
   return document;
 }
@@ -132,6 +137,10 @@ describe('password dialog', () => {
   beforeEach(() => {
     originalDocument = global.document;
     global.document = createMockDocument();
+    global.document.body.focus = jest.fn(() => {
+      global.document.activeElement = global.document.body;
+    });
+    global.document.activeElement = global.document.body;
   });
 
   afterEach(() => {
@@ -149,6 +158,8 @@ describe('password dialog', () => {
     const error = document.getElementById('password-error');
 
     expect(dialog).not.toBeNull();
+    expect(dialog.getAttribute('aria-labelledby')).toBe('password-dialog-title');
+    expect(dialog.getAttribute('aria-describedby')).toBe('password-dialog-description');
     expect(getDeepText(dialog)).toContain('בחר סיסמה');
     expect(getDeepText(dialog)).toContain('אישור סיסמה');
     expect(error.className).toContain('hidden');
@@ -200,6 +211,33 @@ describe('password dialog', () => {
     document.getElementById('password-submit').click();
 
     await expect(pending).resolves.toBe('decrypt-password-123');
+  });
+
+  test('uses current-password autocomplete for decrypt mode and traps tab focus inside the dialog', async () => {
+    const { promptPassword } = await import('../../../js/components/password-dialog.js');
+
+    const pending = promptPassword('decrypt');
+    await flushPromises();
+
+    const passwordInput = document.getElementById('password-input');
+    const submitButton = document.getElementById('password-submit');
+    const cancelButton = document.getElementById('password-cancel');
+
+    expect(passwordInput.autocomplete).toBe('current-password');
+    expect(document.activeElement).toBe(passwordInput);
+
+    document.dispatchEvent({ type: 'keydown', key: 'Tab', shiftKey: false, preventDefault: jest.fn() });
+    expect(document.activeElement).toBe(submitButton);
+
+    document.dispatchEvent({ type: 'keydown', key: 'Tab', shiftKey: false, preventDefault: jest.fn() });
+    expect(document.activeElement).toBe(cancelButton);
+
+    document.dispatchEvent({ type: 'keydown', key: 'Tab', shiftKey: false, preventDefault: jest.fn() });
+    expect(document.activeElement).toBe(passwordInput);
+
+    cancelButton.click();
+    await expect(pending).resolves.toBeNull();
+    expect(document.activeElement).toBe(document.body);
   });
 
   test('cancel resolves to null', async () => {

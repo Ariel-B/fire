@@ -11,6 +11,37 @@ function encodeBase64(bytes) {
 }
 
 describe('plan crypto', () => {
+  async function encryptWithIterations(plaintext, password, iterations) {
+    const encoder = new TextEncoder();
+    const salt = webcrypto.getRandomValues(new Uint8Array(16));
+    const iv = webcrypto.getRandomValues(new Uint8Array(12));
+    const passwordKey = await webcrypto.subtle.importKey('raw', encoder.encode(password), 'PBKDF2', false, ['deriveKey']);
+    const key = await webcrypto.subtle.deriveKey({
+      name: 'PBKDF2',
+      salt: Uint8Array.from(salt).buffer,
+      iterations,
+      hash: 'SHA-256'
+    }, passwordKey, {
+      name: 'AES-GCM',
+      length: 256
+    }, false, ['encrypt']);
+    const encrypted = await webcrypto.subtle.encrypt({
+      name: 'AES-GCM',
+      iv: Uint8Array.from(iv).buffer
+    }, key, encoder.encode(plaintext));
+
+    return {
+      encrypted: true,
+      version: '1.0',
+      algorithm: 'AES-256-GCM',
+      kdf: 'PBKDF2',
+      kdfIterations: iterations,
+      salt: encodeBase64(salt),
+      iv: encodeBase64(iv),
+      data: encodeBase64(new Uint8Array(encrypted))
+    };
+  }
+
   beforeAll(() => {
     Object.defineProperty(globalThis, 'crypto', {
       value: webcrypto,
@@ -60,6 +91,14 @@ describe('plan crypto', () => {
     });
   });
 
+  test('decrypts an envelope that uses a supported non-default PBKDF2 iteration count', async () => {
+    const { decryptPlan } = await import('../../../js/crypto/plan-crypto.js');
+    const plaintext = '{"compatibility":"future-kdf"}';
+    const envelope = await encryptWithIterations(plaintext, 'test-password-123', 650000);
+
+    await expect(decryptPlan(envelope, 'test-password-123')).resolves.toBe(plaintext);
+  });
+
   test('detects encrypted envelopes and ignores legacy or invalid data', async () => {
     const { isEncryptedPlan } = await import('../../../js/crypto/plan-crypto.js');
 
@@ -73,6 +112,16 @@ describe('plan crypto', () => {
       iv: 'iv',
       data: 'cipher'
     })).toBe(true);
+    expect(isEncryptedPlan({
+      encrypted: true,
+      version: '1.0',
+      algorithm: 'AES-256-GCM',
+      kdf: 'PBKDF2',
+      kdfIterations: 9000000,
+      salt: 'salt',
+      iv: 'iv',
+      data: 'cipher'
+    })).toBe(false);
     expect(isEncryptedPlan({ birthDate: '1990-01-01' })).toBe(false);
     expect(isEncryptedPlan(null)).toBe(false);
     expect(isEncryptedPlan('garbage')).toBe(false);

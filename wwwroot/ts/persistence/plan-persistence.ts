@@ -365,9 +365,20 @@ export function createPlanPersistence(dependencies: PlanPersistenceDependencies)
       (error as { name?: unknown }).name === 'OperationError';
   }
 
+  function isMarkedEncryptedEnvelope(data: unknown): boolean {
+    return typeof data === 'object' &&
+      data !== null &&
+      'encrypted' in data &&
+      (data as { encrypted?: unknown }).encrypted === true;
+  }
+
   async function parseLoadedPlan(text: string): Promise<unknown | null> {
     const rawData = JSON.parse(text);
     if (!isEncryptedPlan(rawData)) {
+      if (isMarkedEncryptedEnvelope(rawData)) {
+        throw new Error('פורמט קובץ מוצפן לא נתמך');
+      }
+
       return rawData;
     }
 
