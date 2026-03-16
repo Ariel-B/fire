@@ -400,7 +400,8 @@ The FIRE Planning Tool features an intuitive two-column layout:
 
 4. **View Results**
    - See your projected portfolio value at retirement
-   - Review the growth projection chart
+   - Review the growth projection chart, which opens on the current year plus the next 30 years
+   - Use the always-visible control row below the chart to zoom, pan, reset the focused view, or copy the chart
    - Check if you can achieve FIRE with your plan
 
 5. **Save Your Plan**
@@ -409,7 +410,8 @@ The FIRE Planning Tool features an intuitive two-column layout:
 
 4. **View Results**
    - Check if FIRE is achievable with your current plan
-   - Review the growth projections chart
+   - Review the growth projections chart with its focused default timeframe
+   - Use the centered control row below the chart for zoom and panning
    - Analyze the retirement withdrawal calculations
 
 5. **Save Your Plan**
@@ -455,6 +457,7 @@ The application provides a complete visual dashboard with:
 - Projected portfolio at retirement
 - Monthly expense analysis
 - Withdrawal rate calculations
+- Main chart opens on the current year plus the next 30 years and can be adjusted from the control row below the chart
 
 ![Planned Expenses Overview](./docs/images/fire-planned-expenses.jpg)
 
@@ -572,7 +575,7 @@ echo "your_finnhub_api_key" | docker secret create finnhub_api_key -
 
 - **Hebrew RTL Layout**: Complete right-to-left interface
 - **Responsive Design**: Works on desktop, tablet, and mobile
-- **Interactive Charts**: Visual representation of portfolio growth
+- **Interactive Charts**: Visual representation of portfolio growth with a focused default timeframe and always-visible controls below the main results chart
 - **Two-Column Layout**: Input controls and results side-by-side
 - **Real-time Updates**: All calculations update instantly as you type
 

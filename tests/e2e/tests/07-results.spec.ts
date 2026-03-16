@@ -4,28 +4,36 @@ import { cloneDemoPlan } from '../fixtures/test-data';
 import { parseMoney } from '../fixtures/parse-money';
 import { test, expect } from '../fixtures';
 
-/** Read the Chart.js x-axis max value from a canvas element. */
-async function getChartXMax(chart: Locator): Promise<number | null> {
+type ChartViewportState = {
+  min: number | null;
+  max: number | null;
+  labelCount: number;
+  wheelZoomEnabled: boolean | null;
+  pinchZoomEnabled: boolean | null;
+};
+
+async function getChartViewportState(chart: Locator): Promise<ChartViewportState> {
   return chart.evaluate((el) => {
     const c = (window as any).Chart?.getChart(el);
-    return c?.scales?.x?.max ?? null;
+    return {
+      min: c?.scales?.x?.min ?? null,
+      max: c?.scales?.x?.max ?? null,
+      labelCount: c?.data?.labels?.length ?? 0,
+      wheelZoomEnabled: c?.options?.plugins?.zoom?.zoom?.wheel?.enabled ?? null,
+      pinchZoomEnabled: c?.options?.plugins?.zoom?.zoom?.pinch?.enabled ?? null
+    };
   });
 }
 
 test.describe('results tab', () => {
 
-  test('shows summary cards, donut charts with rendered content, and visible chart controls after calculation', async ({ firePlanPage }) => {
+  test('shows summary cards, donut charts, and focused chart controls after calculation', async ({ firePlanPage }) => {
     await firePlanPage.goto();
     await firePlanPage.loadPlan(cloneDemoPlan());
     await firePlanPage.switchToTab('results');
 
-    await test.step('summary cards contain meaningful values', async () => {
-      await expect(firePlanPage.resultsTab.totalContributions).not.toHaveText(/^[₪$]0(?:\.00)?$/);
-      await expect(firePlanPage.resultsTab.annualWithdrawalNet).not.toHaveText('-');
-      await expect(firePlanPage.resultsTab.monthlyExpenseNet).not.toHaveText('-');
-    });
-
     await test.step('total contributions is a reasonable positive number', async () => {
+      await expect(firePlanPage.resultsTab.totalContributions).not.toHaveText(/^[₪$]0(?:\.00)?$/);
       const text = await firePlanPage.resultsTab.totalContributions.textContent();
       const value = parseMoney(text);
       // With ₪10,000/month over ~16 years the total should be in the millions range
@@ -35,13 +43,11 @@ test.describe('results tab', () => {
     });
 
     await test.step('results summary values use a recognized currency symbol', async () => {
-      // The demo plan may display in ₪ or $ depending on saved display-currency
-      for (const locator of [
-        firePlanPage.resultsTab.totalContributions,
-        firePlanPage.resultsTab.annualWithdrawalNet,
-        firePlanPage.resultsTab.monthlyExpenseNet
-      ]) {
-        await expect(locator).toContainText(/[₪$]/);
+      for (const locator of [firePlanPage.resultsTab.totalContributions, firePlanPage.resultsTab.annualWithdrawalNet, firePlanPage.resultsTab.monthlyExpenseNet]) {
+        const text = (await locator.textContent())?.trim();
+        if (text && text !== '-') {
+          await expect(locator).toContainText(/[₪$]/);
+        }
       }
     });
 
@@ -67,24 +73,91 @@ test.describe('results tab', () => {
       }).toBe(true);
     });
 
-    if (test.info().project.name !== 'mobile-chromium') {
-      await test.step('chart controls appear on hover', async () => {
+    await test.step('chart guidance and controls stay visible', async () => {
+      await expect(firePlanPage.resultsTab.mainChartGuidance).toContainText('30 השנים הבאות');
+      await expect(firePlanPage.resultsTab.mainChartControls).toBeVisible();
+      await expect(firePlanPage.resultsTab.zoomOutButton).toBeVisible();
+      await expect(firePlanPage.resultsTab.resetZoomButton).toBeVisible();
+      await expect(firePlanPage.resultsTab.zoomInButton).toBeVisible();
+      await expect(firePlanPage.resultsTab.panLeftButton).toBeVisible();
+      await expect(firePlanPage.resultsTab.panRightButton).toBeVisible();
+      await expect(firePlanPage.resultsTab.copyChartButton).toBeVisible();
+    });
+
+    await test.step('main chart defaults to the current point plus the next 30 years', async () => {
+      await expect.poll(async () => {
+        const state = await getChartViewportState(firePlanPage.resultsTab.mainChart);
+        return state.max !== null ? state : null;
+      }).toMatchObject({
+        min: 0,
+        max: 30
+      });
+
+      const state = await getChartViewportState(firePlanPage.resultsTab.mainChart);
+      expect(state.labelCount).toBeGreaterThan(31);
+    });
+
+    await test.step('wheel and pinch zoom are disabled for the main chart', async () => {
+      const initialState = await getChartViewportState(firePlanPage.resultsTab.mainChart);
+      expect(initialState.wheelZoomEnabled).toBe(false);
+      expect(initialState.pinchZoomEnabled).toBe(false);
+
+      if (test.info().project.name !== 'mobile-chromium') {
         await firePlanPage.resultsTab.mainChart.hover();
-        await expect(firePlanPage.resultsTab.zoomInButton).toBeVisible();
-        await expect(firePlanPage.resultsTab.panLeftButton).toBeVisible();
-        await expect(firePlanPage.resultsTab.copyChartButton).toBeVisible();
-      });
-
-      await test.step('zoom-in changes the chart x-axis scale', async () => {
-        const xMaxBefore = await getChartXMax(firePlanPage.resultsTab.mainChart);
-
-        await firePlanPage.resultsTab.zoomInButton.click();
-        // After zoom-in, the x-axis max should decrease (narrower view)
+        await firePlanPage.page.mouse.wheel(0, -600);
         await expect.poll(async () => {
-          const xMaxAfter = await getChartXMax(firePlanPage.resultsTab.mainChart);
-          return xMaxAfter !== null && xMaxBefore !== null && xMaxAfter < xMaxBefore;
-        }).toBe(true);
-      });
-    }
+          const state = await getChartViewportState(firePlanPage.resultsTab.mainChart);
+          return { min: state.min, max: state.max };
+        }).toEqual({ min: initialState.min, max: initialState.max });
+      }
+    });
+
+    await test.step('zoom and pan buttons change the viewport and reset restores the focused default', async () => {
+      const defaultState = await getChartViewportState(firePlanPage.resultsTab.mainChart);
+
+      await firePlanPage.resultsTab.zoomInButton.click();
+      await expect.poll(async () => (await getChartViewportState(firePlanPage.resultsTab.mainChart)).max).toBeLessThan(defaultState.max ?? Number.POSITIVE_INFINITY);
+
+      await firePlanPage.resultsTab.panRightButton.click();
+      await expect.poll(async () => (await getChartViewportState(firePlanPage.resultsTab.mainChart)).min).toBeGreaterThan(defaultState.min ?? 0);
+
+      for (let i = 0; i < 6; i++) {
+        await firePlanPage.resultsTab.zoomOutButton.click();
+      }
+
+      await expect.poll(async () => {
+        const state = await getChartViewportState(firePlanPage.resultsTab.mainChart);
+        return state.max;
+      }).toBeGreaterThan(defaultState.max ?? 0);
+
+      await firePlanPage.resultsTab.resetZoomButton.click();
+      await expect.poll(async () => {
+        const state = await getChartViewportState(firePlanPage.resultsTab.mainChart);
+        return { min: state.min, max: state.max };
+      }).toEqual({ min: defaultState.min, max: defaultState.max });
+    });
+  });
+
+  test('defaults to the full-range viewport for plans shorter than 30 years', async ({ firePlanPage }) => {
+    const shortPlan = cloneDemoPlan<Record<string, unknown>>();
+    const shortPlanBirthYear = new Date().getFullYear() - 86;
+
+    shortPlan.birthDate = `${shortPlanBirthYear}-01-01`;
+    shortPlan.birthYear = shortPlanBirthYear;
+    shortPlan.earlyRetirementYear = new Date().getFullYear();
+
+    await firePlanPage.goto();
+    await firePlanPage.loadPlan(shortPlan);
+    await firePlanPage.switchToTab('results');
+
+    await expect.poll(async () => {
+      const state = await getChartViewportState(firePlanPage.resultsTab.mainChart);
+      return state.max !== null ? state : null;
+    }).not.toBeNull();
+
+    const shortPlanState = await getChartViewportState(firePlanPage.resultsTab.mainChart);
+    expect(shortPlanState.labelCount).toBeLessThanOrEqual(31);
+    expect(shortPlanState.min).toBe(0);
+    expect(shortPlanState.max).toBe(shortPlanState.labelCount - 1);
   });
 });

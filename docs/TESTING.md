@@ -172,7 +172,7 @@ The Playwright suite covers these distinct areas:
 - **Correctness assertions** (`07-results`, `08-money-flow`, `10-currency-switching`): Validate that displayed values are numerically correct, properly bounded, and use the correct currency symbol — not just that elements are visible.
 - **Persistence integrity** (`09-persistence-export`): Save → load round-trips verify that key plan fields (personal info, assets, expenses, currency) are faithfully preserved.
 - **Async/race-condition coverage** (`14-async-race-conditions`): Route interception tests for stale response rejection and tab-switch-during-calculation resilience.
-- **Chart interaction** (`07-results`, `08-money-flow`): Verify that zoom controls change the chart scale and that SVG charts have non-zero rendered dimensions.
+- **Chart interaction** (`07-results`, `08-money-flow`): Verify that the results chart defaults to the focused 30-year viewport (or full-range fallback for shorter plans), wheel zoom stays disabled, button controls remain visible below the chart, reset restores the focused default view, and SVG charts have non-zero rendered dimensions.
 - **Mobile coverage** (`01-smoke`, `02-personal-market-form`, `07-results`, `10-currency-switching`, `12-accessibility`): These specs run on the `mobile-chromium` project with Pixel 7 viewport. Desktop-only steps (hover, increment buttons) are conditionally skipped.
 
 ## Using Makefile (Recommended)

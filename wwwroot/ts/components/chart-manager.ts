@@ -71,8 +71,14 @@ interface ChartInstance {
     maxAge: number;
     yearlyData: Array<{ age: number }>;
     totalYears: number;
+    defaultMinIndex: number;
+    defaultMaxIndex: number;
+    defaultMinAge: number;
+    defaultMaxAge: number;
   };
 }
+
+const DEFAULT_MAIN_CHART_FUTURE_YEARS = 30;
 
 // ============================================================================
 // Chart Color Palettes
@@ -144,10 +150,9 @@ export function resetChartZoom(canvasId: string): void {
   const chart = chartInstances.get(canvasId);
   if (chart && chart.resetZoom) {
     chart.resetZoom();
-    // Reset the age axis to original values
     if (chart._ageAxisData && chart.scales.xAge) {
-      chart.scales.xAge.options.min = chart._ageAxisData.minAge;
-      chart.scales.xAge.options.max = chart._ageAxisData.maxAge;
+      chart.scales.xAge.options.min = chart._ageAxisData.defaultMinAge;
+      chart.scales.xAge.options.max = chart._ageAxisData.defaultMaxAge;
       chart.update('none');
     }
   }
@@ -215,6 +220,20 @@ function syncChartAgeAxis(chart: any): void {
   chart.scales.xAge.options.min = visibleMinAge;
   chart.scales.xAge.options.max = visibleMaxAge;
   chart.update('none');
+}
+
+export function calculateDefaultMainChartViewport(totalYears: number): { minIndex: number; maxIndex: number } {
+  if (totalYears <= 0) {
+    return {
+      minIndex: 0,
+      maxIndex: 0
+    };
+  }
+
+  return {
+    minIndex: 0,
+    maxIndex: Math.min(totalYears - 1, DEFAULT_MAIN_CHART_FUTURE_YEARS)
+  };
 }
 
 // ============================================================================
@@ -886,6 +905,12 @@ export function updateMainChart(
   const minAge = chartData.yearlyData[0]?.age || 0;
   const maxAge = chartData.yearlyData[chartData.yearlyData.length - 1]?.age || 100;
   const totalYears = chartData.yearlyData.length;
+  const hasYearlyData = totalYears > 0;
+  const defaultViewport = calculateDefaultMainChartViewport(totalYears);
+  const defaultMinLabel = hasYearlyData ? labels[defaultViewport.minIndex] : undefined;
+  const defaultMaxLabel = hasYearlyData ? labels[defaultViewport.maxIndex] : undefined;
+  const defaultMinAge = chartData.yearlyData[defaultViewport.minIndex]?.age || minAge;
+  const defaultMaxAge = chartData.yearlyData[defaultViewport.maxIndex]?.age || maxAge;
 
   // Build milestone annotations for all four events
   const milestoneAnnotations = buildMilestoneAnnotations(chartData.yearlyData, {
@@ -1061,11 +1086,11 @@ export function updateMainChart(
           },
           zoom: {
             wheel: {
-              enabled: true,
+              enabled: false,
               speed: 0.1
             },
             pinch: {
-              enabled: true,
+              enabled: false,
               speed: 0.005
             },
             drag: {
@@ -1078,8 +1103,8 @@ export function updateMainChart(
           },
           limits: {
             x: {
-              min: 'original',
-              max: 'original'
+              min: 0,
+              max: Math.max(totalYears - 1, 0)
             },
             y: {
               min: 'original',
@@ -1091,6 +1116,7 @@ export function updateMainChart(
       scales: {
         x: {
           position: 'bottom',
+          ...(hasYearlyData ? { min: defaultMinLabel, max: defaultMaxLabel } : {}),
           title: {
             display: true,
             text: 'שנה'
@@ -1113,8 +1139,8 @@ export function updateMainChart(
           grid: {
             display: false
           },
-          min: minAge,
-          max: maxAge,
+          min: defaultMinAge,
+          max: defaultMaxAge,
           ticks: {
             stepSize: 5,
             maxTicksLimit: 15,
@@ -1144,7 +1170,11 @@ export function updateMainChart(
     minAge,
     maxAge,
     yearlyData: chartData.yearlyData,
-    totalYears
+    totalYears,
+    defaultMinIndex: defaultViewport.minIndex,
+    defaultMaxIndex: defaultViewport.maxIndex,
+    defaultMinAge,
+    defaultMaxAge
   };
 
   chartInstances.set(canvasId, chart);
