@@ -582,6 +582,27 @@ export function loadAppModule(harness, overrides = {}) {
     ...(overrides.exportApi || {})
   };
 
+  const planCryptoMocks = {
+    encryptPlan: jest.fn(async (plaintext) => ({
+      encrypted: true,
+      version: '1.0',
+      algorithm: 'AES-256-GCM',
+      kdf: 'PBKDF2',
+      kdfIterations: 600000,
+      salt: 'mock-salt',
+      iv: 'mock-iv',
+      data: plaintext
+    })),
+    decryptPlan: jest.fn(async (envelope) => envelope.data),
+    isEncryptedPlan: jest.fn((value) => value?.encrypted === true),
+    ...(overrides.planCrypto || {})
+  };
+
+  const passwordDialogMocks = {
+    promptPassword: jest.fn(async () => 'test-password-123'),
+    ...(overrides.passwordDialog || {})
+  };
+
   const rsuStateMocks = {
     getRsuGrants: jest.fn(() => []),
     getRsuConfiguration: jest.fn(() => ({
@@ -653,9 +674,11 @@ export function loadAppModule(harness, overrides = {}) {
   jest.doMock('../../js/api/fire-plan-api.js', () => firePlanApiMocks);
   jest.doMock('../../js/api/assets-api.js', () => assetsApiMocks);
   jest.doMock('../../js/api/export-api.js', () => exportApiMocks);
+  jest.doMock('../../js/crypto/plan-crypto.js', () => planCryptoMocks);
   jest.doMock('../../js/components/chart-manager.js', () => chartManagerMocks);
   jest.doMock('../../js/components/portfolio-table.js', () => portfolioTableMocks);
   jest.doMock('../../js/components/expense-table.js', () => expenseTableMocks);
+  jest.doMock('../../js/components/password-dialog.js', () => passwordDialogMocks);
   jest.doMock('../../js/components/rsu-table.js', () => rsuTableMocks);
   jest.doMock('../../js/services/rsu-state.js', () => rsuStateMocks);
   jest.doMock('../../js/components/rsu-chart.js', () => rsuChartMocks);
@@ -679,6 +702,8 @@ export function loadAppModule(harness, overrides = {}) {
       firePlanApi: firePlanApiMocks,
       assetsApi: assetsApiMocks,
       exportApi: exportApiMocks,
+      planCrypto: planCryptoMocks,
+      passwordDialog: passwordDialogMocks,
       appShell: appShellMocks,
       rsuState: rsuStateMocks,
       rsuChart: rsuChartMocks,

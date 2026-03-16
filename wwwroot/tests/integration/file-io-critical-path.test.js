@@ -23,7 +23,7 @@ describe('File I/O critical path', () => {
     harness.getElement('targetMonthlyExpense').value = '9876';
     global.window.showSaveFilePicker = jest.fn();
 
-    const { appModule } = loadAppModule(harness);
+    const { appModule, mocks } = loadAppModule(harness);
     const fireApp = appModule.default || appModule;
     fireApp.getState().currentFileHandle = currentFileHandle;
     fireApp.getState().currentFileName = currentFileHandle.name;
@@ -33,8 +33,11 @@ describe('File I/O critical path', () => {
     expect(global.window.showSaveFilePicker).not.toHaveBeenCalled();
     expect(currentFileHandle.createWritable).toHaveBeenCalledTimes(1);
     expect(write).toHaveBeenCalledTimes(1);
-    const savedJson = write.mock.calls[0][0];
-    const savedPlan = JSON.parse(savedJson);
+    expect(mocks.passwordDialog.promptPassword).toHaveBeenCalledWith('encrypt');
+    expect(mocks.planCrypto.encryptPlan).toHaveBeenCalledTimes(1);
+    const savedEnvelope = JSON.parse(write.mock.calls[0][0]);
+    const savedPlan = JSON.parse(savedEnvelope.data);
+    expect(savedEnvelope.encrypted).toBe(true);
     expect(savedPlan.monthlyContribution).toEqual({ amount: 4321, currency: 'USD' });
     expect(savedPlan.targetMonthlyExpense).toEqual({ amount: 9876, currency: 'USD' });
     expect(savedPlan.displayCurrency).toBe('₪');
@@ -52,12 +55,17 @@ describe('File I/O critical path', () => {
     };
     global.window.showSaveFilePicker = jest.fn(async () => pickedHandle);
 
-    const { appModule } = loadAppModule(harness);
+    const { appModule, mocks } = loadAppModule(harness);
     const fireApp = appModule.default || appModule;
 
     await appModule.savePlanAs();
 
     expect(global.window.showSaveFilePicker).toHaveBeenCalledTimes(1);
+    expect(global.window.showSaveFilePicker).toHaveBeenCalledWith(expect.objectContaining({
+      suggestedName: expect.stringMatching(/\.enc\.json$/i)
+    }));
+    expect(mocks.passwordDialog.promptPassword).toHaveBeenCalledWith('encrypt');
+    expect(mocks.planCrypto.encryptPlan).toHaveBeenCalledTimes(1);
     expect(pickedHandle.createWritable).toHaveBeenCalledTimes(1);
     expect(fireApp.getState().currentFileHandle).toBe(pickedHandle);
     expect(fireApp.getState().currentFileName).toBe('chosen-plan.json');
@@ -69,10 +77,12 @@ describe('File I/O critical path', () => {
     const harness = createAppTestHarness();
     delete global.window.showSaveFilePicker;
 
-    const { appModule } = loadAppModule(harness);
+    const { appModule, mocks } = loadAppModule(harness);
 
     await appModule.savePlanAs();
 
+    expect(mocks.passwordDialog.promptPassword).toHaveBeenCalledWith('encrypt');
+    expect(mocks.planCrypto.encryptPlan).toHaveBeenCalledTimes(1);
     expect(global.Blob).toHaveBeenCalledTimes(1);
     expect(global.URL.createObjectURL).toHaveBeenCalledTimes(1);
     const anchor = global.document.createElement.mock.results.find((result) => result.value.tagName === 'A');

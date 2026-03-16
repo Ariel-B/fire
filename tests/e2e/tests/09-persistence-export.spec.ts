@@ -6,6 +6,7 @@ import { test, expect, desktopOnly } from '../fixtures';
 
 test.describe('persistence and export', () => {
   desktopOnly();
+  const testPassword = 'test-password-123';
 
   test('save, save as, load, and Excel export flows work in the browser', async ({ firePlanPage }, testInfo) => {
     await firePlanPage.goto();
@@ -13,12 +14,13 @@ test.describe('persistence and export', () => {
 
     let savedPlanPath = '';
 
-    await test.step('save-as downloads a JSON plan file', async () => {
+    await test.step('save-as downloads an encrypted JSON plan file', async () => {
       const saveAsDownloadPromise = firePlanPage.page.waitForEvent('download');
-      await firePlanPage.page.locator('#savePlanAs').click();
+      await firePlanPage.savePlanAsWithPassword(testPassword);
       const saveAsDownload = await saveAsDownloadPromise;
       savedPlanPath = path.join(testInfo.outputDir, path.basename(saveAsDownload.suggestedFilename()));
       await saveAsDownload.saveAs(savedPlanPath);
+      expect(saveAsDownload.suggestedFilename()).toMatch(/\.enc\.json$/i);
     });
 
     await test.step('modify a field, then load restores original value', async () => {
@@ -26,16 +28,13 @@ test.describe('persistence and export', () => {
       await firePlanPage.page.locator('#monthlyContribution').blur();
       await expect.poll(async () => (await firePlanPage.page.locator('#monthlyContribution').inputValue()).replace(/,/g, '')).toBe('12345');
 
-      const fileChooserPromise = firePlanPage.page.waitForEvent('filechooser');
-      await firePlanPage.page.locator('#loadPlan').click();
-      const fileChooser = await fileChooserPromise;
-      await fileChooser.setFiles(savedPlanPath);
+      await firePlanPage.loadPlanWithPassword(savedPlanPath, testPassword);
       await expect.poll(async () => (await firePlanPage.page.locator('#monthlyContribution').inputValue()).replace(/,/g, '')).toBe('10000');
     });
 
     await test.step('save (overwrite) triggers a download', async () => {
       const saveDownloadPromise = firePlanPage.page.waitForEvent('download');
-      await firePlanPage.page.locator('#savePlan').click();
+      await firePlanPage.savePlanWithPassword(testPassword);
       await expect(await saveDownloadPromise).toBeTruthy();
     });
 
@@ -72,10 +71,11 @@ test.describe('persistence and export', () => {
     let savedPlanPath = '';
     await test.step('save plan', async () => {
       const saveAsDownloadPromise = firePlanPage.page.waitForEvent('download');
-      await firePlanPage.page.locator('#savePlanAs').click();
+      await firePlanPage.savePlanAsWithPassword(testPassword);
       const saveAsDownload = await saveAsDownloadPromise;
       savedPlanPath = path.join(testInfo.outputDir, path.basename(saveAsDownload.suggestedFilename()));
       await saveAsDownload.saveAs(savedPlanPath);
+      expect(saveAsDownload.suggestedFilename()).toMatch(/\.enc\.json$/i);
     });
 
     // Mutate fields to confirm load actually restores them
@@ -88,10 +88,7 @@ test.describe('persistence and export', () => {
 
     // Load the saved plan back
     await test.step('load saved plan', async () => {
-      const fileChooserPromise = firePlanPage.page.waitForEvent('filechooser');
-      await firePlanPage.page.locator('#loadPlan').click();
-      const fileChooser = await fileChooserPromise;
-      await fileChooser.setFiles(savedPlanPath);
+      await firePlanPage.loadPlanWithPassword(savedPlanPath, testPassword);
 
       // Wait for the plan load to fully settle — contribution field restores
       // and the results tab shows a non-zero value (calculation complete).
