@@ -222,7 +222,14 @@ function syncChartAgeAxis(chart: any): void {
   chart.update('none');
 }
 
-function calculateDefaultMainChartViewport(totalYears: number): { minIndex: number; maxIndex: number } {
+export function calculateDefaultMainChartViewport(totalYears: number): { minIndex: number; maxIndex: number } {
+  if (totalYears <= 0) {
+    return {
+      minIndex: 0,
+      maxIndex: 0
+    };
+  }
+
   return {
     minIndex: 0,
     maxIndex: Math.min(totalYears - 1, DEFAULT_MAIN_CHART_FUTURE_YEARS)
@@ -898,9 +905,10 @@ export function updateMainChart(
   const minAge = chartData.yearlyData[0]?.age || 0;
   const maxAge = chartData.yearlyData[chartData.yearlyData.length - 1]?.age || 100;
   const totalYears = chartData.yearlyData.length;
+  const hasYearlyData = totalYears > 0;
   const defaultViewport = calculateDefaultMainChartViewport(totalYears);
-  const defaultMinLabel = labels[defaultViewport.minIndex];
-  const defaultMaxLabel = labels[defaultViewport.maxIndex];
+  const defaultMinLabel = hasYearlyData ? labels[defaultViewport.minIndex] : undefined;
+  const defaultMaxLabel = hasYearlyData ? labels[defaultViewport.maxIndex] : undefined;
   const defaultMinAge = chartData.yearlyData[defaultViewport.minIndex]?.age || minAge;
   const defaultMaxAge = chartData.yearlyData[defaultViewport.maxIndex]?.age || maxAge;
 
@@ -1096,7 +1104,7 @@ export function updateMainChart(
           limits: {
             x: {
               min: 0,
-              max: totalYears - 1
+              max: Math.max(totalYears - 1, 0)
             },
             y: {
               min: 'original',
@@ -1108,8 +1116,7 @@ export function updateMainChart(
       scales: {
         x: {
           position: 'bottom',
-          min: defaultMinLabel,
-          max: defaultMaxLabel,
+          ...(hasYearlyData ? { min: defaultMinLabel, max: defaultMaxLabel } : {}),
           title: {
             display: true,
             text: 'שנה'
