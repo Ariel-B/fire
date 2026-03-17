@@ -296,6 +296,7 @@ export interface ResultsFormulaMetadata {
 
 export interface FireCalculationResult {
   totalContributions: number;
+  totalAccumulationContributions?: number;
   totalMonthlyContributions: number;
   peakValue: number;
   grossPeakValue: number; // Pre-tax peak value (before retirement portfolio tax)

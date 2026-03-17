@@ -378,6 +378,7 @@ namespace FirePlanningTool.Tests.Calculations
             var result = _fireCalculator.Calculate(input);
 
             result.CurrentCostBasis.Should().Be(60000m);
+            result.TotalAccumulationContributions.Should().Be(0m);
             result.TotalMonthlyContributions.Should().Be(0m);
             result.NetAnnualWithdrawal.Should().Be(3500m);
             result.GrossMonthlyExpense.Should().BeApproximately(291.67m, 0.01m);

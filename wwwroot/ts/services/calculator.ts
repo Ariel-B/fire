@@ -457,6 +457,7 @@ export function calculateFirePlan(input: FirePlanInput): FireCalculationResult {
 
   return {
     totalContributions: originalTotalContributions,
+    totalAccumulationContributions: totalMonthlyContributions,
     totalMonthlyContributions,
     peakValue,
     grossPeakValue,

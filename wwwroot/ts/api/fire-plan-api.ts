@@ -203,9 +203,36 @@ function toFrontendResult(
     input.usdIlsRate
   );
 
+  const endValue = backendResult.endValue as number || 0;
+  const formulaMetadata = backendResult.formulaMetadata as FireCalculationResult['formulaMetadata'] | undefined;
+  const currentValue = backendResult.currentValue as number
+    ?? calculatePortfolioValueLocal(input.accumulationPortfolio, input.usdIlsRate);
+  const currentCostBasis = backendResult.currentCostBasis as number
+    ?? calculatePortfolioCostBasisLocal(input.accumulationPortfolio, input.usdIlsRate);
+  const totalContributions = backendResult.totalContributions as number || 0;
+  const totalAccumulationContributions = backendResult.totalAccumulationContributions as number
+    ?? backendResult.totalMonthlyContributions as number
+    ?? Math.max(0, totalContributions - currentCostBasis);
+  const peakValue = backendResult.peakValue as number || 0;
+  const backendGrossPeakValue = backendResult.grossPeakValue as number | undefined;
+  const backendRetirementTaxToPay = backendResult.retirementTaxToPay as number | undefined;
+  const capitalGainsTaxRate = input.capitalGainsTax / 100;
+  let grossPeakValue = backendGrossPeakValue ?? peakValue;
+  let retirementTaxToPay = backendRetirementTaxToPay ?? 0;
+
+  if (backendGrossPeakValue == null && backendRetirementTaxToPay == null && input.useRetirementPortfolio && input.retirementAllocation.length > 0) {
+    const gains = Math.max(0, peakValue - totalContributions);
+    retirementTaxToPay = gains * capitalGainsTaxRate;
+    grossPeakValue = peakValue + retirementTaxToPay;
+  }
+
+  const netAnnualWithdrawal = backendResult.netAnnualWithdrawal as number
+    ?? ((backendResult.netMonthlyExpense as number || 0) * 12);
+  const grossMonthlyExpense = backendResult.grossMonthlyExpense as number
+    ?? ((backendResult.grossAnnualWithdrawal as number || 0) / 12);
+
   // Determine retirement portfolio structure
   let retirementPortfolio: PortfolioChartData[];
-  const endValue = backendResult.endValue as number || 0;
   
   if (input.useRetirementPortfolio && input.retirementAllocation.length > 0) {
     // Use allocation-based retirement portfolio
@@ -223,38 +250,17 @@ function toFrontendResult(
     }));
   }
 
-  // Calculate retirement tax (if using retirement portfolio)
-  const peakValue = backendResult.peakValue as number || 0;
-  const totalContributions = backendResult.totalContributions as number || 0;
-  const capitalGainsTaxRate = input.capitalGainsTax / 100;
-  
-  let grossPeakValue = peakValue;
-  let retirementTaxToPay = 0;
-  
-  if (input.useRetirementPortfolio && input.retirementAllocation.length > 0) {
-    // Calculate tax on unrealized gains when switching to retirement portfolio
-    const gains = Math.max(0, peakValue - totalContributions);
-    retirementTaxToPay = gains * capitalGainsTaxRate;
-    grossPeakValue = peakValue + retirementTaxToPay; // Gross is before tax
-  }
-
-  // Calculate current portfolio value and cost basis
-  const currentValue = calculatePortfolioValueLocal(input.accumulationPortfolio, input.usdIlsRate);
-  const currentCostBasis = calculatePortfolioCostBasisLocal(input.accumulationPortfolio, input.usdIlsRate);
-
-  // Calculate total monthly contributions
-  const totalMonthlyContributions = totalContributions - currentCostBasis;
-
   return {
     totalContributions,
-    totalMonthlyContributions: Math.max(0, totalMonthlyContributions),
-    peakValue: input.useRetirementPortfolio ? peakValue - retirementTaxToPay : peakValue,
+    totalAccumulationContributions,
+    totalMonthlyContributions: totalAccumulationContributions,
+    peakValue,
     grossPeakValue,
     retirementTaxToPay,
     endValue,
     grossAnnualWithdrawal: backendResult.grossAnnualWithdrawal as number || 0,
-    netAnnualWithdrawal: backendResult.netMonthlyExpense as number * 12 || 0,
-    grossMonthlyExpense: (backendResult.grossAnnualWithdrawal as number || 0) / 12,
+    netAnnualWithdrawal,
+    grossMonthlyExpense,
     netMonthlyExpense: backendResult.netMonthlyExpense as number || 0,
     yearlyData,
     accumulationPortfolio: input.accumulationPortfolio,
@@ -265,7 +271,8 @@ function toFrontendResult(
     // RSU result fields from backend
     totalRsuValueAtRetirement: backendResult.totalRsuValueAtRetirement as number | undefined,
     totalRsuNetProceeds: backendResult.totalRsuNetProceeds as number | undefined,
-    totalRsuTaxesPaid: backendResult.totalRsuTaxesPaid as number | undefined
+    totalRsuTaxesPaid: backendResult.totalRsuTaxesPaid as number | undefined,
+    formulaMetadata
   };
 }
 

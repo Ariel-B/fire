@@ -201,6 +201,7 @@ namespace FirePlanningTool.Services
             return new FireCalculationResult
             {
                 TotalContributions = originalTotalContributions,
+                TotalAccumulationContributions = actualContributions,
                 TotalMonthlyContributions = actualContributions,
                 PeakValue = peakValue,
                 GrossPeakValue = grossPeakValue,

@@ -419,6 +419,13 @@ namespace FirePlanningTool.Models
 
         /// <summary>
         /// Contributions added during the modeled accumulation phase (excluding current cost basis).
+        /// This is the preferred field name for API consumers.
+        /// </summary>
+        public decimal TotalAccumulationContributions { get; set; }
+
+        /// <summary>
+        /// Backward-compatible alias for total accumulation contributions.
+        /// Despite the legacy name, this is a total amount across the accumulation phase, not a monthly amount.
         /// </summary>
         public decimal TotalMonthlyContributions { get; set; }
 

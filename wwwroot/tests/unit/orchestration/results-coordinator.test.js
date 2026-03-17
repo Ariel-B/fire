@@ -73,6 +73,7 @@ function createDependencies(overrides = {}) {
       }
     }),
     getElement: jest.fn((id) => elements[id] ?? null),
+    escapeHtml: jest.fn((value) => String(value ?? '')),
     getUsdIlsRate: jest.fn(() => 3.7),
     getEarlyRetirementYear: jest.fn(() => 2045),
     getInputNumber: jest.fn((id, fallback) => {
@@ -106,6 +107,7 @@ function createDependencies(overrides = {}) {
 function createResult(overrides = {}) {
   return {
     totalContributions: 100000,
+    totalAccumulationContributions: 25000,
     totalMonthlyContributions: 25000,
     currentValue: 120000,
     currentCostBasis: 90000,
@@ -190,7 +192,6 @@ describe('results coordinator', () => {
       }),
       displayCurrency: '₪',
       usdIlsRate: 4,
-      useRetirementPortfolio: true,
       convertFromUSD: (value, currency) => currency === '₪' ? value * 4 : value,
       formatCurrency: (value, currency) => `${currency}${value.toFixed(2)}`
     });
@@ -234,6 +235,49 @@ describe('results coordinator', () => {
     expect(dependencies.getElement('peakTaxToPay').textContent).toBe('מס לתשלום: $30000');
     expect(dependencies.getElement('peakTaxToPay').classList.remove).toHaveBeenCalledWith('hidden');
     expect(dependencies.getElement('peakUnrealizedGain').classList.add).toHaveBeenCalledWith('hidden');
+  });
+
+  test('prefers result metadata over ui state for retirement-portfolio explainability', () => {
+    const { createResultsCoordinator } = loadModule();
+    const dependencies = createDependencies({
+      state: {
+        accumulationPortfolio: [],
+        displayCurrency: '$',
+        useRetirementPortfolio: true,
+        expenses: []
+      }
+    });
+    const coordinator = createResultsCoordinator(dependencies);
+
+    coordinator.displayResults(createResult({
+      peakValue: 280000,
+      grossPeakValue: 280000,
+      retirementTaxToPay: 0,
+      formulaMetadata: {
+        totalContributions: {
+          currentCostBasis: 75000,
+          accumulationContributions: 25000,
+          computedTotalContributions: 100000,
+          usesManualTaxBasis: false,
+          manualTaxBasis: null
+        },
+        annualWithdrawal: {
+          peakValueForWithdrawal: 280000,
+          withdrawalRate: 4,
+          effectiveTaxRate: 0
+        },
+        peakValue: {
+          displayedValueIsGross: false,
+          usesRetirementPortfolio: false,
+          taxAdjustedPeakValue: 280000,
+          retirementTaxToPay: 0
+        }
+      }
+    }));
+
+    expect(dependencies.setTextContent).toHaveBeenCalledWith('peakValue', '$280000');
+    expect(dependencies.getElement('peakTaxToPay').classList.add).toHaveBeenCalledWith('hidden');
+    expect(dependencies.getElement('peakUnrealizedGain').classList.remove).toHaveBeenCalledWith('hidden');
   });
 
   test('coordinates donut, main, expenses, and sankey chart refreshes without RSU charts when no grants exist', () => {

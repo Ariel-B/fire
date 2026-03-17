@@ -23,7 +23,7 @@ type ResultsCoordinatorDependencies = {
   formatCurrency: (amount: number, currency: Currency) => string;
   setTextContent: (elementId: string, value: string) => void;
   getElement: <T extends HTMLElement = HTMLElement>(id: string) => T | null;
-  escapeHtml?: (value: string | number | null | undefined) => string;
+  escapeHtml: (value: string | number | null | undefined) => string;
   getUsdIlsRate: () => number;
   getEarlyRetirementYear: () => number;
   getInputNumber: (id: string, defaultValue?: number) => number;
@@ -57,27 +57,6 @@ type ResultsCoordinatorDependencies = {
 const DEFAULT_RESULTS_PROJECTION_AGE = 100;
 const FORMULA_CLOSE_HOVER_DELAY_MS = 100;
 
-function defaultEscapeHtml(value: string | number | null | undefined): string {
-  return String(value ?? '').replace(/[&<>"'`]/g, (char) => {
-    switch (char) {
-      case '&':
-        return '&amp;';
-      case '<':
-        return '&lt;';
-      case '>':
-        return '&gt;';
-      case '"':
-        return '&quot;';
-      case '\'':
-        return '&#39;';
-      case '`':
-        return '&#96;';
-      default:
-        return char;
-    }
-  });
-}
-
 type ResultsFormulaVariable = {
   label: string;
   value: string;
@@ -101,10 +80,23 @@ type BuildResultsFormulaExplanationsOptions = {
   result: FireCalculationResult;
   displayCurrency: Currency;
   usdIlsRate: number;
-  useRetirementPortfolio: boolean;
   convertFromUSD: (valueInUSD: number, displayCurrency: Currency, usdIlsRate: number) => number;
   formatCurrency: (amount: number, currency: Currency) => string;
 };
+
+function getAccumulationContributions(result: FireCalculationResult): number {
+  return result.totalAccumulationContributions ?? result.totalMonthlyContributions ?? 0;
+}
+
+function getUsesRetirementPortfolio(result: FireCalculationResult): boolean {
+  const metadataValue = result.formulaMetadata?.peakValue?.usesRetirementPortfolio;
+  if (typeof metadataValue === 'boolean') {
+    return metadataValue;
+  }
+
+  return (result.retirementTaxToPay ?? 0) > 0
+    || ((result.grossPeakValue ?? result.peakValue ?? 0) !== (result.peakValue ?? 0));
+}
 
 const RESULTS_FORMULA_PANEL_CONFIG: ReadonlyArray<{
   key: ResultsFormulaPanelKey;
@@ -158,7 +150,6 @@ export function buildResultsFormulaExplanations({
   result,
   displayCurrency,
   usdIlsRate,
-  useRetirementPortfolio,
   convertFromUSD,
   formatCurrency
 }: BuildResultsFormulaExplanationsOptions): Record<ResultsFormulaPanelKey, ResultsFormulaExplanation> {
@@ -170,7 +161,7 @@ export function buildResultsFormulaExplanations({
   const peakMetadata = result.formulaMetadata?.peakValue;
 
   const currentCostBasis = contributionsMetadata?.currentCostBasis ?? result.currentCostBasis ?? 0;
-  const accumulationContributions = contributionsMetadata?.accumulationContributions ?? result.totalMonthlyContributions ?? 0;
+  const accumulationContributions = contributionsMetadata?.accumulationContributions ?? getAccumulationContributions(result);
   const computedTotalContributions =
     contributionsMetadata?.computedTotalContributions ?? (currentCostBasis + accumulationContributions);
   const usesManualTaxBasis = contributionsMetadata?.usesManualTaxBasis ?? false;
@@ -186,7 +177,7 @@ export function buildResultsFormulaExplanations({
   const grossMonthlyExpense = result.grossMonthlyExpense ?? result.grossAnnualWithdrawal / 12;
   const endYearData = result.yearlyData.length > 0 ? result.yearlyData[result.yearlyData.length - 1] : null;
   const endValue = endYearData?.portfolioValue ?? result.endValue ?? 0;
-  const displayedPeakValueIsGross = peakMetadata?.displayedValueIsGross ?? useRetirementPortfolio;
+  const displayedPeakValueIsGross = peakMetadata?.displayedValueIsGross ?? getUsesRetirementPortfolio(result);
   const retirementTaxToPay = peakMetadata?.retirementTaxToPay ?? result.retirementTaxToPay ?? 0;
   const taxAdjustedPeakValue = peakMetadata?.taxAdjustedPeakValue ?? result.peakValue ?? 0;
 
@@ -265,7 +256,7 @@ export function buildResultsFormulaExplanations({
 }
 
 export function createResultsCoordinator(dependencies: ResultsCoordinatorDependencies) {
-  const escape = dependencies.escapeHtml ?? defaultEscapeHtml;
+  const escape = dependencies.escapeHtml;
   let formulaPanelsInitialized = false;
   let activeFormulaPanelKey: ResultsFormulaPanelKey | null = null;
   let pinnedFormulaPanelKey: ResultsFormulaPanelKey | null = null;
@@ -372,7 +363,6 @@ export function createResultsCoordinator(dependencies: ResultsCoordinatorDepende
       result,
       displayCurrency: dependencies.state.displayCurrency,
       usdIlsRate: dependencies.getUsdIlsRate(),
-      useRetirementPortfolio: dependencies.state.useRetirementPortfolio,
       convertFromUSD: dependencies.convertFromUSD,
       formatCurrency: dependencies.formatCurrency
     });
@@ -491,10 +481,11 @@ export function createResultsCoordinator(dependencies: ResultsCoordinatorDepende
     }
 
     const contributionsBreakdownElement = dependencies.getElement('contributionsBreakdown');
+    const accumulationContributions = getAccumulationContributions(result);
     if (contributionsBreakdownElement) {
-      if (result.totalMonthlyContributions > 0) {
+      if (accumulationContributions > 0) {
         contributionsBreakdownElement.textContent = `מתוכם הפקדות חודשיות: ${dependencies.formatCurrency(
-          convertValue(result.totalMonthlyContributions),
+          convertValue(accumulationContributions),
           dependencies.state.displayCurrency
         )}`;
         contributionsBreakdownElement.className = 'text-xs text-gray-500 mt-1';
@@ -507,6 +498,7 @@ export function createResultsCoordinator(dependencies: ResultsCoordinatorDepende
     const peakValue = result.peakValue || 0;
     const grossPeakValue = result.grossPeakValue || peakValue;
     const retirementTaxToPay = result.retirementTaxToPay || 0;
+    const usesRetirementPortfolio = getUsesRetirementPortfolio(result);
     const endValue = result.yearlyData.length > 0
       ? result.yearlyData[result.yearlyData.length - 1].portfolioValue
       : 0;
@@ -523,7 +515,7 @@ export function createResultsCoordinator(dependencies: ResultsCoordinatorDepende
     const startUnrealizedGain = startValue - (result.currentCostBasis || 0);
     const grossPeakUnrealizedGain = grossPeakValue
       - (result.currentCostBasis || 0)
-      - (result.totalMonthlyContributions || 0);
+      - accumulationContributions;
     const endUnrealizedGain = endValue - (result.totalContributions || 0);
 
     const formatGain = (gain: number): string => {
@@ -552,7 +544,7 @@ export function createResultsCoordinator(dependencies: ResultsCoordinatorDepende
       taxElementId: string,
       centerClass: boolean = false
     ): void => {
-      if (dependencies.state.useRetirementPortfolio) {
+      if (usesRetirementPortfolio) {
         dependencies.setTextContent(
           valueElementId,
           dependencies.formatCurrency(convertValue(grossPeakValue), dependencies.state.displayCurrency)

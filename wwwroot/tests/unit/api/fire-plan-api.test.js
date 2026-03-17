@@ -65,9 +65,37 @@ const MIN_BACKEND_RESULT = {
   ],
   endValue: 500000,
   peakValue: 600000,
+  grossPeakValue: 620000,
+  retirementTaxToPay: 20000,
   totalContributions: 100000,
+  totalAccumulationContributions: 80000,
+  totalMonthlyContributions: 12345,
   grossAnnualWithdrawal: 24000,
-  netMonthlyExpense: 1500
+  netAnnualWithdrawal: 18000,
+  grossMonthlyExpense: 2000,
+  netMonthlyExpense: 1500,
+  currentValue: 25000,
+  currentCostBasis: 20000,
+  formulaMetadata: {
+    totalContributions: {
+      currentCostBasis: 20000,
+      accumulationContributions: 80000,
+      computedTotalContributions: 100000,
+      usesManualTaxBasis: false,
+      manualTaxBasis: null
+    },
+    annualWithdrawal: {
+      peakValueForWithdrawal: 600000,
+      withdrawalRate: 4,
+      effectiveTaxRate: 25
+    },
+    peakValue: {
+      usesRetirementPortfolio: false,
+      displayedValueIsGross: false,
+      taxAdjustedPeakValue: 600000,
+      retirementTaxToPay: 0
+    }
+  }
 };
 
 // ============================================================================
@@ -154,16 +182,30 @@ describe('calculateFirePlanAPI — success', () => {
     expect(result.peakValue).toBe(600000);
   });
 
-  test('returns grossMonthlyExpense as grossAnnualWithdrawal/12', async () => {
+  test('passes through backend grossMonthlyExpense when provided', async () => {
     makeFetchOk(MIN_BACKEND_RESULT);
     const result = await calculateFirePlanAPI(MIN_INPUT);
-    expect(result.grossMonthlyExpense).toBeCloseTo(24000 / 12, 2);
+    expect(result.grossMonthlyExpense).toBe(2000);
   });
 
   test('returns netMonthlyExpense from backend result', async () => {
     makeFetchOk(MIN_BACKEND_RESULT);
     const result = await calculateFirePlanAPI(MIN_INPUT);
     expect(result.netMonthlyExpense).toBe(1500);
+  });
+
+  test('passes through backend netAnnualWithdrawal and formulaMetadata', async () => {
+    makeFetchOk(MIN_BACKEND_RESULT);
+    const result = await calculateFirePlanAPI(MIN_INPUT);
+    expect(result.netAnnualWithdrawal).toBe(18000);
+    expect(result.formulaMetadata).toEqual(MIN_BACKEND_RESULT.formulaMetadata);
+  });
+
+  test('prefers backend accumulation contributions fields over local recalculation', async () => {
+    makeFetchOk(MIN_BACKEND_RESULT);
+    const result = await calculateFirePlanAPI(MIN_INPUT);
+    expect(result.totalAccumulationContributions).toBe(80000);
+    expect(result.totalMonthlyContributions).toBe(80000);
   });
 });
 
@@ -227,7 +269,11 @@ describe('calculateFirePlanAPI — with portfolio items', () => {
         }
       ]
     };
-    makeFetchOk(MIN_BACKEND_RESULT);
+    makeFetchOk({
+      ...MIN_BACKEND_RESULT,
+      currentValue: undefined,
+      currentCostBasis: undefined
+    });
     const result = await calculateFirePlanAPI(inputIls);
     expect(result.currentValue).toBeCloseTo(10000, 0); // 100 * (360/3.6)
     expect(result.currentCostBasis).toBeCloseTo(5000, 0); // 100 * (180/3.6)
@@ -285,7 +331,13 @@ describe('calculateFirePlanAPI — useRetirementPortfolio', () => {
   });
 
   test('calculates retirementTaxToPay on gains', async () => {
-    makeFetchOk({ ...MIN_BACKEND_RESULT, peakValue: 600000, totalContributions: 100000 });
+    makeFetchOk({
+      ...MIN_BACKEND_RESULT,
+      peakValue: 600000,
+      totalContributions: 100000,
+      grossPeakValue: undefined,
+      retirementTaxToPay: undefined
+    });
     const result = await calculateFirePlanAPI(inputWithRetirementPortfolio);
     // gains = 600000 - 100000 = 500000, tax = 500000 * 0.25 = 125000
     expect(result.retirementTaxToPay).toBeCloseTo(125000, 0);

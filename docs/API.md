@@ -200,6 +200,7 @@ This ensures that RSU compensation is properly accounted for in your FIRE calcul
 ```json
 {
   "totalContributions": 600000,
+  "totalAccumulationContributions": 420000,
   "totalMonthlyContributions": 420000,
   "peakValue": 2500000,
   "grossPeakValue": 2500000,
