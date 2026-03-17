@@ -64,6 +64,7 @@ type ResultsFormulaVariable = {
 
 type ResultsFormulaExplanation = {
   formula: string;
+  label?: string;
   variables: ResultsFormulaVariable[];
   notes: string[];
 };
@@ -224,7 +225,8 @@ export function buildResultsFormulaExplanations({
         : []
     },
     startValue: {
-      formula: 'שווי תחילת צבירה = שווי השוק הנוכחי של התיק',
+      label: 'פירוט',
+      formula: 'שווי תחילת הצבירה משקף את שווי השוק הנוכחי של התיק',
       variables: [
         { label: 'שווי שוק נוכחי', value: convertValue(result.currentValue ?? 0) },
         { label: 'בסיס עלות נוכחי', value: convertValue(currentCostBasis) }
@@ -232,9 +234,10 @@ export function buildResultsFormulaExplanations({
       notes: []
     },
     peakValue: {
+      label: 'פירוט',
       formula: displayedPeakValueIsGross
-        ? 'שווי שיא מוצג = שווי התיק לפני מס איזון בפרישה'
-        : 'שווי שיא מוצג = שווי התיק הזמין בתחילת הפרישה',
+        ? 'שווי השיא המוצג הוא שווי התיק לפני מס האיזון החד-פעמי בפרישה'
+        : 'שווי השיא המוצג הוא שווי התיק הזמין בתחילת הפרישה',
       variables: [
         { label: 'שווי שיא ברוטו', value: convertValue(result.grossPeakValue ?? result.peakValue ?? 0) },
         { label: 'מס איזון בפרישה', value: convertValue(retirementTaxToPay) },
@@ -245,7 +248,8 @@ export function buildResultsFormulaExplanations({
         : []
     },
     endValue: {
-      formula: 'שווי סוף פרישה = נקודת הנתונים האחרונה בגרף השנתי',
+      label: 'פירוט',
+      formula: 'שווי סוף הפרישה הוא הנקודה האחרונה בגרף השנתי',
       variables: [
         { label: 'שנת סיום', value: endYearData ? String(endYearData.year) : '—' },
         { label: 'שווי סופי', value: convertValue(endValue) }
@@ -336,12 +340,32 @@ export function createResultsCoordinator(dependencies: ResultsCoordinatorDepende
   function renderFormulaExplanationMarkup(explanation: ResultsFormulaExplanation): string {
     const variablesMarkup = explanation.variables
       .map(({ label, value }) => (
-        `<div class="flex items-start justify-between gap-3 rounded-md bg-gray-50 px-2 py-1">
-          <span class="text-gray-600">${escape(label)}</span>
-          <span class="font-medium text-gray-900 text-left" dir="ltr">${escape(value)}</span>
+        `<div class="flex items-center justify-between gap-2 rounded-md bg-gray-50 px-2 py-0.5">
+          <span class="text-gray-600 truncate">${escape(label)}</span>
+          <span class="font-medium text-gray-900 text-left shrink-0" dir="ltr">${escape(value)}</span>
         </div>`
       ))
       .join('');
+
+    const half = Math.ceil(explanation.variables.length / 2);
+    const col1 = explanation.variables.slice(0, half);
+    const col2 = explanation.variables.slice(half);
+
+    const colMarkup = (vars: typeof explanation.variables) => vars
+      .map(({ label, value }) => (
+        `<div class="flex items-center justify-between gap-2 rounded-md bg-gray-50 px-2 py-0.5">
+          <span class="text-gray-600 truncate">${escape(label)}</span>
+          <span class="font-medium text-gray-900 text-left shrink-0" dir="ltr">${escape(value)}</span>
+        </div>`
+      ))
+      .join('');
+
+    const twoColMarkup = explanation.variables.length >= 4
+      ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.25rem">
+          <div style="display:flex;flex-direction:column;gap:0.25rem">${colMarkup(col1)}</div>
+          <div style="display:flex;flex-direction:column;gap:0.25rem">${colMarkup(col2)}</div>
+        </div>`
+      : `<div style="display:flex;flex-direction:column;gap:0.25rem">${variablesMarkup}</div>`;
 
     const notesMarkup = explanation.notes.length > 0
       ? `<div class="mt-2 space-y-1">${explanation.notes
@@ -351,8 +375,8 @@ export function createResultsCoordinator(dependencies: ResultsCoordinatorDepende
 
     return `
       <div class="space-y-2 text-xs text-right">
-        <p class="font-semibold text-gray-800">נוסחה: ${escape(explanation.formula)}</p>
-        <div class="space-y-1">${variablesMarkup}</div>
+        <p class="font-semibold text-gray-800">${escape(explanation.label ?? 'נוסחה')}: ${escape(explanation.formula)}</p>
+        ${twoColMarkup}
         ${notesMarkup}
       </div>
     `;
