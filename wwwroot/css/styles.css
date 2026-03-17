@@ -51,15 +51,18 @@ body {
     position: absolute;
     top: 0;
     left: 0;
+    z-index: 1;
     width: 100% !important;
     height: 100% !important;
 }
 
 .donut-container {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     min-height: 280px;
+    isolation: isolate;
 }
 
 .chart-wrapper {
@@ -67,11 +70,16 @@ body {
     width: 200px;
     height: 200px;
     margin: 0 auto;
+    z-index: 1;
 }
 
 .chart-wrapper-lg {
     width: 280px;
     height: 280px;
+}
+.donut-container > .relative {
+    position: relative;
+    z-index: 20;
 }
 
 .main-chart-wrapper-tall {
@@ -258,6 +266,16 @@ input:focus, select:focus {
 
 .tab-button.active .tab-summary {
     opacity: 1;
+}
+
+/* Keep results formula popovers fully opaque over charts and cards. */
+[data-formula-panel] {
+    background-color: #ffffff !important;
+    opacity: 1;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    z-index: 1000 !important;
+    isolation: auto;
 }
 
 .tab-panels {
