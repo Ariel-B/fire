@@ -311,6 +311,7 @@ const resultsCoordinator = createResultsCoordinator({
   formatCurrency,
   setTextContent,
   getElement,
+  escapeHtml,
   getUsdIlsRate,
   getEarlyRetirementYear,
   getInputNumber,

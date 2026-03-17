@@ -267,8 +267,36 @@ export interface PortfolioChartData {
   value: number;
 }
 
+export interface TotalContributionsFormulaMetadata {
+  currentCostBasis: number;
+  accumulationContributions: number;
+  computedTotalContributions: number;
+  usesManualTaxBasis: boolean;
+  manualTaxBasis: number | null;
+}
+
+export interface AnnualWithdrawalFormulaMetadata {
+  peakValueForWithdrawal: number;
+  withdrawalRate: number;
+  effectiveTaxRate: number;
+}
+
+export interface PeakValueFormulaMetadata {
+  usesRetirementPortfolio: boolean;
+  displayedValueIsGross: boolean;
+  taxAdjustedPeakValue: number;
+  retirementTaxToPay: number;
+}
+
+export interface ResultsFormulaMetadata {
+  totalContributions: TotalContributionsFormulaMetadata;
+  annualWithdrawal: AnnualWithdrawalFormulaMetadata;
+  peakValue: PeakValueFormulaMetadata;
+}
+
 export interface FireCalculationResult {
   totalContributions: number;
+  totalAccumulationContributions?: number;
   totalMonthlyContributions: number;
   peakValue: number;
   grossPeakValue: number; // Pre-tax peak value (before retirement portfolio tax)
@@ -298,6 +326,7 @@ export interface FireCalculationResult {
   rsuSummary?: import('./rsu-types.js').RsuSummary | null;
   // FIRE age reached (earlyRetirementYear - birthYear)
   fireAgeReached?: number;
+  formulaMetadata?: ResultsFormulaMetadata;
 }
 
 // ============================================================================

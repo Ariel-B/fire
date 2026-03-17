@@ -200,10 +200,38 @@ This ensures that RSU compensation is properly accounted for in your FIRE calcul
 ```json
 {
   "totalContributions": 600000,
+  "totalAccumulationContributions": 420000,
+  "totalMonthlyContributions": 420000,
   "peakValue": 2500000,
+  "grossPeakValue": 2500000,
+  "retirementTaxToPay": 0,
   "endValue": 2400000,
   "grossAnnualWithdrawal": 96000,
+  "netAnnualWithdrawal": 90000,
+  "grossMonthlyExpense": 8000,
   "netMonthlyExpense": 8000,
+  "currentValue": 45025,
+  "currentCostBasis": 40000,
+  "formulaMetadata": {
+    "totalContributions": {
+      "currentCostBasis": 40000,
+      "accumulationContributions": 560000,
+      "computedTotalContributions": 600000,
+      "usesManualTaxBasis": false,
+      "manualTaxBasis": null
+    },
+    "annualWithdrawal": {
+      "peakValueForWithdrawal": 2500000,
+      "withdrawalRate": 4,
+      "effectiveTaxRate": 6.25
+    },
+    "peakValue": {
+      "usesRetirementPortfolio": false,
+      "displayedValueIsGross": false,
+      "taxAdjustedPeakValue": 2500000,
+      "retirementTaxToPay": 0
+    }
+  },
   "yearlyData": [
     {
       "year": 2025,
@@ -237,7 +265,6 @@ This ensures that RSU compensation is properly accounted for in your FIRE calcul
     }
   ],
   "retirementPortfolio": [],
-  "currentValue": 45025,
   "accumulationAllocation": [],
   "retirementAllocation": [],
   "accumulationWeightedReturn": 7,

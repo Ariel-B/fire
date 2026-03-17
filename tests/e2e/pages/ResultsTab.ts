@@ -36,4 +36,22 @@ export class ResultsTab {
     this.panRightButton = page.locator('#panRightBtn');
     this.copyChartButton = page.locator('#copyMainChartBtn');
   }
+
+  formulaTrigger(key: string): Locator {
+    return this.page.locator(`[data-formula-trigger="${key}"]`);
+  }
+
+  formulaPanel(key: string): Locator {
+    return this.page.locator(`[data-formula-panel="${key}"]`);
+  }
+
+  async activateFormulaTrigger(key: string, isMobile: boolean): Promise<void> {
+    const trigger = this.formulaTrigger(key);
+    if (isMobile) {
+      await trigger.dispatchEvent('click');
+      return;
+    }
+
+    await trigger.click();
+  }
 }
