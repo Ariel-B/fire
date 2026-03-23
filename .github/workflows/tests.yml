@@ -54,7 +54,7 @@ jobs:
       
     - name: Upload backend coverage artifact
       if: always()
-      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
       with:
         name: backend-coverage
         path: ./artifacts/coverage/backend/coverage.opencover.xml
@@ -89,7 +89,7 @@ jobs:
       run: npx jest --listTests | tee jest-tests.txt
     - name: Upload Jest test list artifact
       if: always()
-      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
       with:
         name: jest-tests-list
         path: jest-tests.txt
@@ -101,7 +101,7 @@ jobs:
       
     - name: Upload test results
       if: always()
-      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
       with:
         name: frontend-coverage
         path: artifacts/coverage/frontend
@@ -142,7 +142,7 @@ jobs:
 
     - name: Upload Playwright artifacts
       if: always()
-      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
       with:
         name: playwright-report
         path: |
