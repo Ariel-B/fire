@@ -97,6 +97,9 @@ builder.Services.AddScoped<IFinnhubService, FinnhubService>();
 // Register Exchange Rate Service with HttpClient
 builder.Services.AddHttpClient<IExchangeRateService, ExchangeRateService>();
 
+// Register Inflation Data Service with HttpClient
+builder.Services.AddHttpClient<IInflationDataService, InflationDataService>();
+
 // Add health checks
 builder.Services.AddHealthChecks()
     .AddCheck<FinnhubHealthCheck>("finnhub", tags: new[] { "external", "api" });

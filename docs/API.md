@@ -32,6 +32,7 @@ While the global limit is 100 requests per minute, different endpoints have vary
 | `/api/assetprices/*` | External API calls | Limited by Finnhub API rate limits (60/min on free tier) |
 | `/api/ExchangeRate/*` | Cached external calls | Cached for 60 minutes, rarely hits external API |
 | `/health` | Health checks | No rate limiting applied (exempt for monitoring) |
+| `/api/inflation/israel/historical` | Cached CBS CPI data | Cached for 24 hours |
 
 **Override Mechanism:** Currently none. Future enhancement may allow authenticated users to have higher limits.
 
@@ -483,6 +484,35 @@ GET /api/ExchangeRate/EUR/USD
   "source": "exchangerate.host"
 }
 ```
+
+---
+
+### 9. Get Israel Historical Inflation
+
+**Endpoint:** `GET /api/inflation/israel/historical`
+
+**Description:** Returns Israel CPI historical December values and compound average inflation statistics (CAGR) for common periods (1, 5, 10, 15, 20, 30 years). Data is sourced from the official Israel Central Bureau of Statistics (CBS) CPI index id=120010 and cached on the server for 24 hours.
+
+**Response (Success - 200 OK):**
+```json
+{
+  "dataPoints": [
+    { "year": 2024, "inflationRate": 3.2, "indexValue": 108.4 },
+    { "year": 2023, "inflationRate": 3.0, "indexValue": 105.0 }
+  ],
+  "stats": [
+    { "periodYears": 1, "averageInflation": 0.032, "startYear": 2023, "endYear": 2024 }
+  ],
+  "source": "CBS",
+  "lastUpdated": "2025-01-18T10:30:00Z"
+}
+```
+
+**Response (Degraded - 503 Service Unavailable):**
+```json
+{ "error": "Failed to fetch Israel inflation data from CBS" }
+```
+
 
 ---
 
