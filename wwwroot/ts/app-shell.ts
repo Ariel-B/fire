@@ -19,6 +19,7 @@ import {
 import { initRsuTable } from './components/rsu-table.js';
 import { setupChartCopyButton } from './components/rsu-chart.js';
 import { SankeyChartManager } from './components/sankey-chart.js';
+import { initializeInflationInfoPanel } from './components/inflation-info-panel.js';
 import type { PortfolioType } from './components/portfolio-table.js';
 
 type AppShellDependencies = {
@@ -115,6 +116,8 @@ export function initializeApp(): void {
   app.updateRsuSummary();
 
   app.setSankeyManager(new SankeyChartManager());
+
+  initializeInflationInfoPanel();
 
   const currentYear = new Date().getFullYear();
   const earlyRetirementYear = app.getEarlyRetirementYear();

@@ -31,9 +31,11 @@ namespace FirePlanningTool.Controllers
             var result = await _inflationService.GetIsraelInflationHistoryAsync();
             if (result == null)
             {
+                _logger.LogWarning("Israel inflation data unavailable; returning 503");
                 return StatusCode(503, new ApiErrorResponse("Failed to fetch Israel inflation data from CBS"));
             }
 
+            _logger.LogInformation("Returning Israel inflation history with {Count} data points", result.DataPoints.Count);
             return Ok(result);
         }
     }
