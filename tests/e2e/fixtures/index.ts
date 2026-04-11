@@ -15,7 +15,11 @@ const CONSOLE_ERROR_ALLOWLIST: string[] = [
   'Failed to fetch',
   'AbortError',
   // Rate-limit 429 responses may surface during heavy E2E batches.
-  '429'
+  '429',
+  // Chart.js internally applies inline styles to canvas elements which
+  // violates the strict style-src CSP.  This is a known third-party
+  // library behaviour and not indicative of a regression.
+  'Applying inline style'
 ];
 
 type FireFixtures = {

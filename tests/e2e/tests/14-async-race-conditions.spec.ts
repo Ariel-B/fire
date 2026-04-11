@@ -55,7 +55,7 @@ test.describe('async and race-condition handling', () => {
     // Race-condition scenarios may trigger benign "stale response" console
     // errors from the orchestrator.  Filter those out; fail on anything else.
     const unexpected = consoleErrors.filter(
-      (msg) => !msg.includes('stale') && !msg.includes('abort') && !msg.includes('Calculation')
+      (msg) => !msg.includes('stale') && !msg.includes('abort') && !msg.includes('Calculation') && !msg.includes('Applying inline style')
     );
     expect(unexpected).toHaveLength(0);
   });
@@ -92,7 +92,7 @@ test.describe('async and race-condition handling', () => {
     });
 
     const unexpected = consoleErrors.filter(
-      (msg) => !msg.includes('stale') && !msg.includes('abort') && !msg.includes('Calculation')
+      (msg) => !msg.includes('stale') && !msg.includes('abort') && !msg.includes('Calculation') && !msg.includes('Applying inline style')
     );
     expect(unexpected).toHaveLength(0);
   });

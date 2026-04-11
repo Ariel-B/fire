@@ -150,13 +150,13 @@ export function initializeInflationInfoPanel(): void {
 
   function openModal(): void {
     modal!.classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
+    document.body.classList.add('overflow-hidden');
     loadAndRender(modal!);
   }
 
   function closeModal(): void {
     modal!.classList.add('hidden');
-    document.body.style.overflow = '';
+    document.body.classList.remove('overflow-hidden');
   }
 
   trigger.addEventListener('click', openModal);
