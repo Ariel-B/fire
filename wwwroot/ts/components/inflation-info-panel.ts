@@ -25,33 +25,47 @@ function barColor(rate: number): string {
   return 'rgba(239, 68, 68, 0.75)';                   // red-500
 }
 
+/** Map period length → Hebrew label. */
+const periodLabels: Record<number, string> = {
+  1: 'שנה אחרונה',
+  5: '5 שנים',
+  10: '10 שנים',
+  15: '15 שנים',
+  20: '20 שנים',
+  30: '30 שנים',
+};
+
+function createStatCard(stat: InflationHistoryResponse['stats'][number]): HTMLElement {
+  const card = document.createElement('div');
+  card.className = 'bg-gray-50 rounded-lg p-3 text-center border border-gray-200';
+
+  const labelEl = document.createElement('div');
+  labelEl.className = 'text-xs text-gray-500 mb-1';
+  labelEl.textContent = periodLabels[stat.periodYears] ?? `${stat.periodYears} שנים`;
+
+  const pct = (stat.averageInflation * 100).toFixed(2);
+  const color =
+    stat.averageInflation <= 0.03
+      ? 'text-green-600'
+      : stat.averageInflation <= 0.05
+        ? 'text-amber-600'
+        : 'text-red-600';
+  const valueEl = document.createElement('div');
+  valueEl.className = `text-xl font-bold ${color}`;
+  valueEl.textContent = `${pct}%`;
+
+  const rangeEl = document.createElement('div');
+  rangeEl.className = 'text-xs text-gray-400';
+  rangeEl.textContent = `${stat.startYear}–${stat.endYear}`;
+
+  card.appendChild(labelEl);
+  card.appendChild(valueEl);
+  card.appendChild(rangeEl);
+  return card;
+}
+
 function renderStats(stats: InflationHistoryResponse['stats'], container: HTMLElement): void {
-  const periodLabels: Record<number, string> = {
-    1: 'שנה אחרונה',
-    5: '5 שנים',
-    10: '10 שנים',
-    15: '15 שנים',
-    20: '20 שנים',
-    30: '30 שנים',
-  };
-  container.innerHTML = stats
-    .map(s => {
-      const pct = (s.averageInflation * 100).toFixed(2);
-      const label = periodLabels[s.periodYears] ?? `${s.periodYears} שנים`;
-      const color =
-        s.averageInflation <= 0.03
-          ? 'text-green-600'
-          : s.averageInflation <= 0.05
-          ? 'text-amber-600'
-          : 'text-red-600';
-      return `
-        <div class="bg-gray-50 rounded-lg p-3 text-center border border-gray-200">
-          <div class="text-xs text-gray-500 mb-1">${label}</div>
-          <div class="text-xl font-bold ${color}">${pct}%</div>
-          <div class="text-xs text-gray-400">${s.startYear}–${s.endYear}</div>
-        </div>`;
-    })
-    .join('');
+  container.replaceChildren(...stats.map(createStatCard));
 }
 
 function renderChart(data: InflationHistoryResponse, canvas: HTMLCanvasElement): void {
@@ -73,7 +87,7 @@ function renderChart(data: InflationHistoryResponse, canvas: HTMLCanvasElement):
           label: 'אינפלציה שנתית (%)',
           data: rates,
           backgroundColor: colors,
-          borderColor: colors.map(c => c.replace('0.75', '1')),
+          borderColor: colors.map((c: string) => c.replace('0.75', '1')),
           borderWidth: 1,
         },
       ],
@@ -85,7 +99,7 @@ function renderChart(data: InflationHistoryResponse, canvas: HTMLCanvasElement):
         legend: { display: false },
         tooltip: {
           callbacks: {
-            label: (ctx: any) => ` ${ctx.parsed.y.toFixed(1)}%`,
+            label: (ctx: any) => ` ${ctx.parsed.y.toFixed(2)}%`,
           },
         },
       },
@@ -135,6 +149,9 @@ async function loadAndRender(modal: HTMLElement): Promise<void> {
     if (contentEl) contentEl.classList.remove('hidden');
 
     dataLoaded = true;
+  } catch {
+    if (loadingEl) loadingEl.classList.add('hidden');
+    if (errorEl) errorEl.classList.remove('hidden');
   } finally {
     isLoading = false;
   }
@@ -163,6 +180,8 @@ export function initializeInflationInfoPanel(): void {
   closeBtn?.addEventListener('click', closeModal);
   overlay?.addEventListener('click', closeModal);
 
+  // Global listener is acceptable for this one-time init pattern since the
+  // modal lives for the entire page lifetime and the guard check is cheap.
   document.addEventListener('keydown', (e: KeyboardEvent) => {
     if (e.key === 'Escape' && !modal!.classList.contains('hidden')) closeModal();
   });

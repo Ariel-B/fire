@@ -1,29 +1,43 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
 using System.Text.Json;
-using System.Threading.Tasks;
 using FirePlanningTool.Models;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
 
 namespace FirePlanningTool.Services
 {
+    /// <summary>
+    /// Interface for Israel CPI inflation data operations.
+    /// </summary>
     public interface IInflationDataService
     {
+        /// <summary>
+        /// Gets historical Israel CPI inflation data and period CAGR statistics.
+        /// Data is fetched from CBS and cached for 24 hours.
+        /// </summary>
+        /// <returns>Inflation history response, or null if data is unavailable</returns>
         Task<InflationHistoryResponse?> GetIsraelInflationHistoryAsync();
     }
 
+    /// <summary>
+    /// Service that fetches and caches Israel CPI inflation data from the
+    /// Central Bureau of Statistics (CBS) API.
+    /// </summary>
     public class InflationDataService : IInflationDataService
     {
         private readonly HttpClient _httpClient;
         private readonly IMemoryCache _cache;
         private readonly ILogger<InflationDataService> _logger;
-        private const string CACHE_KEY = "inflation_israel_history";
-        private static readonly TimeSpan CACHE_TTL = TimeSpan.FromHours(24);
-        private const string CBS_URL = "https://api.cbs.gov.il/index/data/price?id=120010&format=json&startPeriod=01-1993&PageSize=500";
+        private const string CacheKey = "inflation_israel_history";
+        private static readonly TimeSpan CacheTtl = TimeSpan.FromHours(24);
+        // PageSize=500 covers ~384 monthly entries from 1993; sufficient until ~2034.
+        private const string CbsUrl = "https://api.cbs.gov.il/index/data/price?id=120010&format=json&startPeriod=01-1993&PageSize=500";
+        private static readonly int[] CagrPeriods = [1, 5, 10, 15, 20, 30];
 
+        /// <summary>
+        /// Initializes a new instance of the InflationDataService.
+        /// </summary>
+        /// <param name="httpClient">HTTP client for CBS API requests</param>
+        /// <param name="cache">In-memory cache for storing fetched data</param>
+        /// <param name="logger">Logger for diagnostic information</param>
         public InflationDataService(HttpClient httpClient, IMemoryCache cache, ILogger<InflationDataService> logger)
         {
             _httpClient = httpClient;
@@ -31,16 +45,17 @@ namespace FirePlanningTool.Services
             _logger = logger;
         }
 
+        /// <inheritdoc />
         public async Task<InflationHistoryResponse?> GetIsraelInflationHistoryAsync()
         {
-            if (_cache.TryGetValue(CACHE_KEY, out InflationHistoryResponse? cached) && cached != null)
+            if (_cache.TryGetValue(CacheKey, out InflationHistoryResponse? cached) && cached != null)
             {
                 return cached;
             }
 
             try
             {
-                var json = await _httpClient.GetStringAsync(CBS_URL);
+                var json = await _httpClient.GetStringAsync(CbsUrl);
                 using var doc = JsonDocument.Parse(json);
                 var root = doc.RootElement;
 
@@ -89,7 +104,7 @@ namespace FirePlanningTool.Services
                                         .OrderBy(e => e.Year)
                                         .ToList();
 
-                if (!decEntries.Any())
+                if (decEntries.Count == 0)
                 {
                     _logger.LogWarning("No December CPI entries found in CBS data");
                     return null;
@@ -103,32 +118,30 @@ namespace FirePlanningTool.Services
                 }).ToList();
 
                 var stats = new List<InflationStats>();
-                int[] periods = new[] { 1, 5, 10, 15, 20, 30 };
-                var years = decEntries.Select(d => d.Year).ToList();
                 var latest = decEntries.Last();
 
-                foreach (var p in periods)
+                foreach (var p in CagrPeriods)
                 {
                     var startYear = latest.Year - p;
                     var start = decEntries.FirstOrDefault(d => d.Year == startYear && d.IndexValue.HasValue);
-                    var end = latest;
 
-                    if (start.IndexValue.HasValue && end.IndexValue.HasValue && start.IndexValue.Value > 0)
+                    // FirstOrDefault returns a default value tuple when no match — check Year explicitly
+                    if (start.Year == 0 || !start.IndexValue.HasValue || !latest.IndexValue.HasValue || start.IndexValue.Value <= 0)
                     {
-                        var startIndex = start.IndexValue.Value;
-                        var endIndex = end.IndexValue.Value;
-                        var factor = (double)(endIndex / startIndex);
-                        if (factor > 0)
+                        continue;
+                    }
+
+                    var factor = (double)(latest.IndexValue.Value / start.IndexValue.Value);
+                    if (factor > 0)
+                    {
+                        var cagr = Math.Pow(factor, 1.0 / p) - 1.0;
+                        stats.Add(new InflationStats
                         {
-                            var cagr = Math.Pow(factor, 1.0 / p) - 1.0;
-                            stats.Add(new InflationStats
-                            {
-                                PeriodYears = p,
-                                AverageInflation = (decimal)cagr,
-                                StartYear = startYear,
-                                EndYear = latest.Year
-                            });
-                        }
+                            PeriodYears = p,
+                            AverageInflation = (decimal)cagr,
+                            StartYear = startYear,
+                            EndYear = latest.Year
+                        });
                     }
                 }
 
@@ -140,8 +153,7 @@ namespace FirePlanningTool.Services
                     LastUpdated = DateTime.UtcNow
                 };
 
-                // Cache result
-                _cache.Set(CACHE_KEY, response, CACHE_TTL);
+                _cache.Set(CacheKey, response, CacheTtl);
 
                 return response;
             }
