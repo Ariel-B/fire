@@ -258,7 +258,10 @@ app.Use(async (context, next) =>
         context.Response.Headers["Content-Security-Policy"] =
             "default-src 'self'; " +
             "script-src 'self'; " +
-            "style-src 'self'; " +
+            // Chart.js internally sets inline styles on canvas elements for responsive
+            // sizing. There is no configuration to disable this behaviour, so we must
+            // allow 'unsafe-inline' for style-src.
+            "style-src 'self' 'unsafe-inline'; " +
             "img-src 'self' data:; " +
             "font-src 'self' data:; " +
             "connect-src 'self'; " +
@@ -272,7 +275,10 @@ app.Use(async (context, next) =>
         context.Response.Headers["Content-Security-Policy"] =
             "default-src 'self'; " +
             "script-src 'self'; " +
-            "style-src 'self'; " +
+            // Chart.js internally sets inline styles on canvas elements for responsive
+            // sizing. There is no configuration to disable this behaviour, so we must
+            // allow 'unsafe-inline' for style-src.
+            "style-src 'self' 'unsafe-inline'; " +
             "img-src 'self' data:; " +
             "font-src 'self' data:; " +
             "connect-src 'self'; " +

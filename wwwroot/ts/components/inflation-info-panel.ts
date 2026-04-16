@@ -6,7 +6,7 @@
 
 import { fetchIsraelInflationHistory, type InflationHistoryResponse } from '../api/inflation-api.js';
 
-// Chart.js is loaded via CDN
+// Chart.js is loaded globally via /vendor/chart.js
 declare const Chart: any;
 
 let inflationChart: any = null;

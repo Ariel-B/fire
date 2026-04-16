@@ -124,6 +124,28 @@ namespace FirePlanningTool.Tests.Services
         }
 
         [Fact]
+        public async Task GetIsraelInflationHistoryAsync_ExcludesDataPoints_WithoutPercentYear()
+        {
+            // Entry with IndexValue but no PercentYear should still contribute to CAGR
+            // but must NOT appear as a data point (would show misleading 0% inflation).
+            var entries = new List<(int, int, double?, double?)>
+            {
+                (2022, 12, 100.0, null),   // No percentYear — excluded from data points
+                (2023, 12, 103.0, 3.0),
+                (2024, 12, 106.21, 3.2)
+            };
+            var json = BuildCbsJson(entries);
+            var service = CreateServiceWithResponse(json);
+
+            var result = await service.GetIsraelInflationHistoryAsync();
+
+            result.Should().NotBeNull();
+            result!.DataPoints.Should().HaveCount(2, "entry without percentYear should be excluded");
+            result.DataPoints.Should().NotContain(d => d.Year == 2022);
+            result.DataPoints[0].Year.Should().Be(2023);
+        }
+
+        [Fact]
         public async Task GetIsraelInflationHistoryAsync_CalculatesCAGR_ForAvailablePeriods()
         {
             // Use 5-year period: 2019–2024

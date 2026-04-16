@@ -110,12 +110,14 @@ namespace FirePlanningTool.Services
                     return null;
                 }
 
-                var dataPoints = decEntries.Select(e => new InflationDataPoint
-                {
-                    Year = e.Year,
-                    InflationRate = e.PercentYear ?? 0m,
-                    IndexValue = e.IndexValue
-                }).ToList();
+                var dataPoints = decEntries
+                    .Where(e => e.PercentYear.HasValue)
+                    .Select(e => new InflationDataPoint
+                    {
+                        Year = e.Year,
+                        InflationRate = e.PercentYear!.Value,
+                        IndexValue = e.IndexValue
+                    }).ToList();
 
                 var stats = new List<InflationStats>();
                 var latest = decEntries.Last();
