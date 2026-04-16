@@ -174,6 +174,7 @@ Charts are singleton instances in `chart-manager.ts` - never instantiate `new Ch
 | POST | `/api/assetprices/batch` | Get multiple stock prices |
 | GET | `/api/assetprices/{symbol}/cagr` | Get historical CAGRs |
 | GET | `/health` | Kubernetes health check |
+| GET | `/api/inflation/israel/historical` | Get historical Israel CPI inflation data and period CAGR stats |
 
 ## Documentation
 
