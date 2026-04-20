@@ -42,7 +42,7 @@
   "devDependencies": {
     "@axe-core/playwright": "^4.11.1",
     "@babel/core": "^7.29.0",
-    "@babel/preset-env": "^7.29.0",
+    "@babel/preset-env": "^7.29.2",
     "@tailwindcss/cli": "^4.2.1",
     "@types/chart.js": "^4.0.1",
     "jest": "^30.3.0",
