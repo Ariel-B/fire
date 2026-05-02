@@ -46,7 +46,7 @@
     "@tailwindcss/cli": "^4.2.1",
     "@types/chart.js": "^4.0.1",
     "jest": "^30.3.0",
-    "jest-junit": "^16.0.0",
+    "jest-junit": "^17.0.0",
     "playwright": "^1.58.2",
     "tailwindcss": "^4.2.1",
     "typescript": "^5.9.3"
